@@ -3,8 +3,8 @@
 
 class Usuario:
 
-    def __init__(self, id, email, senha, nome, telefone, sexo, quantidadeExpAtual, codLevel ):
-        self.id = id
+    def __init__(self, idUsuario=None, email=None, senha=None, nome=None, telefone=None, sexo=None, quantidadeExpAtual=None, codLevel=None ):
+        self.idUsuario = idUsuario
         self.email = email
         self.senha = senha
         self.nome = nome
@@ -13,11 +13,11 @@ class Usuario:
         self.quantidadeExpAtual = quantidadeExpAtual
         self.codLevel = codLevel
     
-    def getId(self):
-        return self.id
+    def getIdUsuario(self):
+        return self.idUsuario
 
-    def setId(self, id):
-        self.id = id
+    def setIdUsuario(self, idUsuario):
+        self.idUsuario = idUsuario
 
     def getEmail(self):
         return self.email

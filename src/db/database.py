@@ -36,7 +36,6 @@ class DataBase:
     def getAll(self, sql):
         if self._db is not None:
             cursor = self.handle_execution(sql)
-            print(cursor)
             content = cursor.fetchall()
 
             self._db.close()
@@ -49,9 +48,7 @@ class DataBase:
     def getOne(self, sql):
         if self._db is not None:
             cursor = self.handle_execution(sql)
-            print(cursor)
             content = cursor.fetchone()
-
             self._db.close()
         else:
             content = 'error'
@@ -63,13 +60,11 @@ class DataBase:
         if self._db is not None:
             try:
                 cursor = self.handle_execution(sql)
-                print(cursor)
                 result = cursor.rowcount
                 if result > 0:
-                    row = cursor.fetchone()[0]
-                    return row
+                    return True
                 else:
-                    return None, False
+                    return False
             except Exception as err:
                 logger.fatal(err)
         else:
@@ -80,7 +75,7 @@ class DataBase:
         try:
             return db_session.persist(sql)
         except Exception as err:
-            print(err)
+            logger.fatal(err)
 
 
 
