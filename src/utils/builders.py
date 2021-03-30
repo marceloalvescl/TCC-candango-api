@@ -1,14 +1,9 @@
 from flask import jsonify
 
-def build_response_usuario(msg, idtUsuario, usuarioInfo):
-    usuarioInfo = elements_to_dict(usuarioInfo, queries.SQL_SEL_INFO_USUARIO)
-    content = {"msg":msg, "idtUsuario":idtUsuario, "usuarioInfo":usuarioInfo}
-    return content
-
-def build_response_login(msg, Usuario):
+def build_response_usuario(msg, Usuario):
     content = {     "msg":msg,
                     "usuarioInfo":{
-                        "idUsuario": str(Usuario.getId()),
+                        "idUsuario": str(Usuario.getIdUsuario()),
                         "emailUsuario": str(Usuario.getEmail()), 
                         "nomeUsuario": str(Usuario.getNome()), 
                         "quantidadeExpAtual": str(Usuario.getQuantidadeExpAtual()),
@@ -16,7 +11,6 @@ def build_response_login(msg, Usuario):
                     }
                 }
     return content
-
 
 def build_response(content, status):
     if isinstance(content, dict) or isinstance(content, list):

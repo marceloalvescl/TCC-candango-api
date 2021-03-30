@@ -1,10 +1,13 @@
 from utils.tools import elements_to_dict
-from utils.builders import build_response_usuario, build_response_login
+from utils.builders import build_response_usuario, build_response
 from utils.contants import DB_SCHEMA
 from db import queries
 from db.database import DataBase
-from models.usuario import Usuario
+from models.DTO.usuario import Usuario
+from models.DAO.usuario_dao import UsuarioDAO
 import json
+
+
 
 class UsuarioController:
 
@@ -13,30 +16,25 @@ class UsuarioController:
 
     def login(self, content):
         database = DataBase()
-        sql = queries.SQL_SEL_LOGIN_USUARIO.format(content["eml_usuario"], content["pwd_usuario"])
-        content = self.database.getOne(sql)
-
-        if len(content) == 0:
+        usuario = Usuario(email=content['eml_usuario'], senha=content['pwd_usuario'])
+        resultado, usuario = UsuarioDAO().existe(usuario)
+        if(resultado):
+            return build_response_usuario("Login realizado com sucesso!", usuario), 200
+        elif(not resultado):
             return 'Usuário ou senha incorreto', 400
-        else:
-            self.returnResponse(content)
-
-        usuario_info = elements_to_dict(content, queries.SQL_SEL_LOGIN_USUARIO)
-        usuarioObj = Usuario(usuario_info[0], usuario_info[1], usuario_info[2], usuario_info[3], None, None, usuario_info[4], usuario_info[5])
-        content = build_response_login("Login realizado com sucesso!", usuarioObj)
-        return content, 200
+        else: 
+            return self.returnResponse(content)
 
     def signup(self, content):
         self.database = DataBase()
-        usuarioObj = Usuario(None, content["eml_usuario"], content["pwd_usuario"], content["nme_usuario"], None, None, None, None)
-        sql = queries.SQL_INS_USU_CANDANGO.format(usuarioObj.getNome(), usuarioObj.getEmail(), usuarioObj.getSenha())
-        content = self.database.insert_new_element(sql)
-        content = [str(content)]
-        content.append(1)
-        if(self.returnResponse(content) is not None):
-            return self.returnResponse(content) 
-        content = "Cadastro realizado com sucesso!"
-        return content, 200
+        usuario = Usuario(email=content["eml_usuario"], senha=content["pwd_usuario"], nome=content["nme_usuario"])
+        resultado, usuario = UsuarioDAO().cadastrarNovo(usuario)
+        if(resultado):
+            return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200
+        elif(not resultado):
+            return 'Erro ao cadastrar usuario, checar log', 400
+        else: 
+            return self.returnResponse(content)    
 
     def get_usuario(self, idtUsuario):
         self.database = DataBase()
