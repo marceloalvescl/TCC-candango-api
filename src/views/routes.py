@@ -51,7 +51,7 @@ class Routes:
     def candango_forgotpass_mail():
         if request.method == 'POST':
             try:
-                content, status = UsuarioController().post_forgotpass_email()
+                content, status = UsuarioController().forgot_password()
             except Exception as e :
                 print(e)
                 logger.fatal(e)
