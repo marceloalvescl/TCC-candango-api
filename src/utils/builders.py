@@ -1,15 +1,19 @@
 from flask import jsonify
 
-def build_response_usuario(msg, Usuario):
-    content = {     "msg":msg,
-                    "usuarioInfo":{
-                        "idUsuario": str(Usuario.getIdUsuario()),
-                        "emailUsuario": str(Usuario.getEmail()), 
-                        "nomeUsuario": str(Usuario.getNome()), 
-                        "quantidadeExpAtual": str(Usuario.getQuantidadeExpAtual()),
-                        "codLevel": str(Usuario.getCodLevel())
+def build_response_usuario(msg, resultado):
+    if (isinstance(resultado, str)):
+        content = {"msg": msg, "problema" : resultado}
+    else:
+        Usuario = resultado
+        content = {"msg":msg,
+                   "usuarioInfo":{
+                            "idUsuario": str(Usuario.getIdUsuario()),
+                            "emailUsuario": str(Usuario.getEmail()), 
+                            "nomeUsuario": str(Usuario.getNome()), 
+                            "quantidadeExpAtual": str(Usuario.getQuantidadeExpAtual()),
+                            "codLevel": str(Usuario.getCodLevel())
+                        }
                     }
-                }
     return content
 
 def build_response(content, status):

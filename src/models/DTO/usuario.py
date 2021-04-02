@@ -3,15 +3,21 @@
 
 class Usuario:
 
-    def __init__(self, idUsuario=None, email=None, senha=None, nome=None, telefone=None, sexo=None, quantidadeExpAtual=None, codLevel=None ):
+    def __init__(self, idUsuario=None, email=None, senha=None, nome=None, telefone=None, 
+                        genero=None, estado=None, pais=None, status=None, quantidadeExpAtual=None, 
+                            urlFotoConta=None, codLevel=None ):
         self.idUsuario = idUsuario
+        self.codLevel = codLevel
+        self.nome = nome
         self.email = email
         self.senha = senha
-        self.nome = nome
         self.telefone = telefone
-        self.sexo = sexo
+        self.genero = genero
+        self.estado = estado
+        self.pais = pais
+        self.status = status
         self.quantidadeExpAtual = quantidadeExpAtual
-        self.codLevel = codLevel
+        self.urlFotoConta = urlFotoConta 
     
     def getIdUsuario(self):
         return self.idUsuario
@@ -36,18 +42,36 @@ class Usuario:
     
     def setNome(self, nome):
         self.nome = nome
+    
+    def getGenero(self):
+        return self.genero
+    
+    def setGenero(self, genero):
+        self.genero = genero
+
+    def getEstado(self):
+        return self.estado
+    
+    def setEstado(self, estado):
+        self.estado = estado
 
     def getTelefone(self):
         return self.telefone
-
+    
     def setTelefone(self, telefone):
         self.telefone = telefone
+    
+    def getPais(self):
+        return self.pais
 
-    def getSexo(self):
-        return self.sexo 
+    def setPais(self, pais):
+        self.pais = pais
 
-    def setSexo(self, sexo):
-        self.sexo = sexo 
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, status):
+        self.status = status
 
     def getQuantidadeExpAtual(self):
         return self.quantidadeExpAtual
@@ -60,4 +84,12 @@ class Usuario:
     
     def setCodLevel(self, codLevel):
         self.codLevel = codLevel
+
+    def getUrlFtoConta(self):
+        return self.getUrlFtoConta
+
+    def setUrlFotoConta(self, urlFotoConta):
+        self.urlFotoConta = urlFotoConta
     
+    def getUrlFotoConta(self):
+        return self.urlFotoConta

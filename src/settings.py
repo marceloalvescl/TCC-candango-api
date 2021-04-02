@@ -1,6 +1,6 @@
 import logging
 import os
-from utils.contants import DB_CREDENTIALS
+from utils.constants import DB_CREDENTIALS
 
 
 def server_configuration():

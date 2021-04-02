@@ -8,6 +8,7 @@ CORS(candango_routes)
 
 
 
+
 class Routes:
 
     @candango_routes.route('/api/candango/signup',

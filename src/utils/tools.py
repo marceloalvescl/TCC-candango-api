@@ -1,4 +1,4 @@
-from utils.contants import (REGEX_PARENTHESES)
+from utils.constants import (REGEX_PARENTHESES)
 import re
 from db import queries
 

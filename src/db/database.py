@@ -1,6 +1,6 @@
 from psycopg2 import connect, DatabaseError, extras
 from settings import logger
-from utils.contants import DB_SCHEMA, DB_CREDENTIALS
+from utils.constants import DB_SCHEMA, DB_CREDENTIALS
 from utils.tools import get_keys
 
 class DataBase:
