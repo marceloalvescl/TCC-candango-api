@@ -2,10 +2,9 @@ from settings import logger, server_configuration
 from views.routes import Routes, candango_routes
 from flask_cors import CORS
 from flask import Flask
-
+from flask_mail import Mail
 app = Flask(__name__)
 app.register_blueprint(candango_routes)
-
 
 CORS(app, automatic_options=True)
 

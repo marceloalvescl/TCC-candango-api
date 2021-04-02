@@ -5,6 +5,7 @@ from db import queries
 from db.database import DataBase
 from models.DTO.usuario import Usuario
 from models.DAO.usuario_dao import UsuarioDAO
+import smtplib
 import json
 
 
@@ -55,9 +56,21 @@ class UsuarioController:
 
         content = elements_to_dict(usuario_info, queries.SQL_SEL_INFO_USUARIO)
         return content, 200
-
+        
     def returnResponse(self, content):
         if content == "error":
             return "Erro de conexão ao banco", 503
         elif content is None:
             return "No Content", 204
+
+    def post_forgotpass_email(self):
+        
+        server = smtplib.SMTP('smtp.gmail.com')
+        server.ehlo()
+        server.starttls()
+        server.login("candangoapp@gmail.com","Candango2021")
+
+        msg = "A text!"
+        server.sendmail("candangoapp@gmail.com", "marceloalvescl@sempreceub.com", msg)
+        server.quit()
+        return "Teste", 200

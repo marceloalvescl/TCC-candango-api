@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from flask_cors import CORS
 from utils.builders import build_response
+from settings import logger
 from controllers.usuario_controller import UsuarioController
 
 candango_routes = Blueprint('candango', __name__)
@@ -46,3 +47,15 @@ class Routes:
         
         return build_response(content, status)
 
+    @candango_routes.route('/api/candango/forgot_password', methods=['POST'])
+    def candango_forgotpass_mail():
+        if request.method == 'POST':
+            try:
+                content, status = UsuarioController().post_forgotpass_email()
+            except Exception as e :
+                print(e)
+                logger.fatal(e)
+                content = ""
+                status = 504
+
+        return build_response(content, status)
