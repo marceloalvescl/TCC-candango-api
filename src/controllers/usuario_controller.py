@@ -20,10 +20,8 @@ class UsuarioController:
         resultado, usuario = UsuarioDAO().buscarPorEmailESenha(email=content['eml_usuario'], senha=content['pwd_usuario'])
         if(resultado):
             return build_response_usuario("Login realizado com sucesso!", usuario), 200
-        elif(not resultado):
+        else:
             return 'Usuário ou senha incorreto', 401
-        else: 
-            return self.returnResponse(content)
 
     def signup(self, content):
         self.database = DataBase()
@@ -38,38 +36,23 @@ class UsuarioController:
         resultado, usuario = UsuarioDAO().cadastrarNovo(usuario)
         if(resultado):
             return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200
-        elif(not resultado):
-            return usuario, 409
-        else: 
-            return self.returnResponse(content)    
-
-    def get_usuario(self, idtUsuario):
-        self.database = DataBase()
-        sql = queries.SQL_SEL_INFO_USUARIO.format(idtUsuario)
-        content = self.database.getOne(sql)
-        
-        
-        if len(content) == 0:
-            return "Usuário ou senha incorreto", 400
         else:
-            self.returnResponse(content)
+            return usuario, 409
 
-        content = elements_to_dict(usuario_info, queries.SQL_SEL_INFO_USUARIO)
-        return content, 200
-        
     def forgot_password(self, content):
         with SMTP('smtp.gmail.com') as smtp:
-
-            server.ehlo()
-            server.starttls()
-            server.login("candangoapp@gmail.com","Candango2021")
-            msg = "A text!"
-            server.sendmail("candangoapp@gmail.com", content['eml_usuario'], msg)
-            server.quit()
-            return "Teste", 200
-
-    def returnResponse(self, content):
-        if content == "error":
-            return "Erro de conexão ao banco", 503
-        elif content is None:
-            return "No Content", 204
+            resultado, usuario = UsuarioDAO().gerarCodigoRecuperarSenha(content['eml_usuario'])
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.login("candangoapp@gmail.com","Candango2021")
+            msg = usuario.getCodRecuperarSenha()
+            smtp.sendmail("candangoapp@gmail.com", content['eml_usuario'], msg)
+            smtp.quit()
+            return "Email com código de redefinição enviado!", 200
+    
+    def change_password(self, content):
+        resultado, msg = UsuarioDAO().alterarSenhaUsuario(content['eml_usuario'], content['cod_recuperar_senha'], content['nova_senha'])
+        if(resultado):
+            return msg, 200
+        elif(not resultado):
+            return usuario, 401

@@ -73,10 +73,21 @@ class DataBase:
         else:
             return 'error'
         
-    def insert(self, sql):
-        db_session = self.getDbSession()
+    def update(self, sql):
         try:
-            return db_session.persist(sql)
+            if self._db is not None:
+                cursor = self.handle_execution(sql)
+                result = cursor.rowcount
+                cursor.close()
+                self._db.close()
+                if result > 0:
+                    return True
+                else:
+                    return False
+            else:
+                content = 'error'
+
+            return content
         except Exception as err:
             logger.fatal(err)
 

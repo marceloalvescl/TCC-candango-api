@@ -21,6 +21,7 @@ def build_response_usuario(msg, resultado):
     return content
 
 def build_response(content, status):
+    print(content)
     if isinstance(content, dict) or isinstance(content, list):
 
         if status == 201:

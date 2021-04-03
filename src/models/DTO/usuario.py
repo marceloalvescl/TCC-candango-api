@@ -5,7 +5,7 @@ class Usuario:
 
     def __init__(self, idUsuario=None, email=None, senha=None, nome=None, telefone=None, 
                         genero=None, estado=None, pais=None, status=None, quantidadeExpAtual=None, 
-                            urlFotoConta=None, codLevel=None ):
+                            urlFotoConta=None, codLevel=None, codRecuperarSenha=None ):
         self.idUsuario = idUsuario
         self.codLevel = codLevel
         self.nome = nome
@@ -18,6 +18,7 @@ class Usuario:
         self.status = status
         self.quantidadeExpAtual = quantidadeExpAtual
         self.urlFotoConta = urlFotoConta 
+        self.codRecuperarSenha = codRecuperarSenha
     
     def getIdUsuario(self):
         return self.idUsuario
@@ -93,3 +94,9 @@ class Usuario:
     
     def getUrlFotoConta(self):
         return self.urlFotoConta
+
+    def setCodRecuperarSenha(self, codRecuperarSenha):
+        self.codRecuperarSenha = codRecuperarSenha
+
+    def getCodRecuperarSenha(self):
+        return self.codRecuperarSenha

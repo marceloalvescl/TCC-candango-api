@@ -58,3 +58,16 @@ class Routes:
                 status = 504
 
         return build_response(content, status)
+    
+    @candango_routes.route('/api/candango/change_password', methods=['POST'])
+    def candango_change_password():
+        if request.method == 'POST':
+            try:
+                content, status = UsuarioController().change_password(request.json)
+            except Exception as e :
+                logger.fatal(e)
+                content = ""
+                status = 504
+
+        return build_response(content, status)
+
