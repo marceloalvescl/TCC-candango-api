@@ -5,7 +5,7 @@ from db import queries
 from db.database import DataBase
 from models.DTO.usuario import Usuario
 from models.DAO.usuario_dao import UsuarioDAO
-import smtplib
+from smtplib import SMTP
 import json
 
 
@@ -17,8 +17,7 @@ class UsuarioController:
 
     def login(self, content):
         database = DataBase()
-        usuario = Usuario(email=content['eml_usuario'], senha=content['pwd_usuario'])
-        resultado, usuario = UsuarioDAO().existe(usuario)
+        resultado, usuario = UsuarioDAO().buscarPorEmailESenha(email=content['eml_usuario'], senha=content['pwd_usuario'])
         if(resultado):
             return build_response_usuario("Login realizado com sucesso!", usuario), 200
         elif(not resultado):
@@ -49,6 +48,7 @@ class UsuarioController:
         sql = queries.SQL_SEL_INFO_USUARIO.format(idtUsuario)
         content = self.database.getOne(sql)
         
+        
         if len(content) == 0:
             return "Usuário ou senha incorreto", 400
         else:
@@ -57,15 +57,16 @@ class UsuarioController:
         content = elements_to_dict(usuario_info, queries.SQL_SEL_INFO_USUARIO)
         return content, 200
         
-    def forgot_password(self):
-        server = smtplib.SMTP('smtp.gmail.com')
-        server.ehlo()
-        server.starttls()
-        server.login("candangoapp@gmail.com","Candango2021")
-        msg = "A text!"
-        server.sendmail("candangoapp@gmail.com", "marceloalvescl@sempreceub.com", msg)
-        server.quit()
-        return "Teste", 200
+    def forgot_password(self, content):
+        with SMTP('smtp.gmail.com') as smtp:
+
+            server.ehlo()
+            server.starttls()
+            server.login("candangoapp@gmail.com","Candango2021")
+            msg = "A text!"
+            server.sendmail("candangoapp@gmail.com", content['eml_usuario'], msg)
+            server.quit()
+            return "Teste", 200
 
     def returnResponse(self, content):
         if content == "error":

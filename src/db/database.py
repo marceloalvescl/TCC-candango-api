@@ -37,7 +37,7 @@ class DataBase:
         if self._db is not None:
             cursor = self.handle_execution(sql)
             content = cursor.fetchall()
-
+            cursor.close()
             self._db.close()
         else:
             content = 'error'
@@ -49,6 +49,7 @@ class DataBase:
         if self._db is not None:
             cursor = self.handle_execution(sql)
             content = cursor.fetchone()
+            cursor.close()
             self._db.close()
         else:
             content = 'error'
@@ -61,6 +62,8 @@ class DataBase:
             try:
                 cursor = self.handle_execution(sql)
                 result = cursor.rowcount
+                cursor.close()
+                self._db.close()
                 if result > 0:
                     return True
                 else:

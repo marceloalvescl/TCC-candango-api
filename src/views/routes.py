@@ -48,12 +48,11 @@ class Routes:
         return build_response(content, status)
 
     @candango_routes.route('/api/candango/forgot_password', methods=['POST'])
-    def candango_forgotpass_mail():
+    def candango_forgot_password():
         if request.method == 'POST':
             try:
-                content, status = UsuarioController().forgot_password()
+                content, status = UsuarioController().forgot_password(request.json)
             except Exception as e :
-                print(e)
                 logger.fatal(e)
                 content = ""
                 status = 504

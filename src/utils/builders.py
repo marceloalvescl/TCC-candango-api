@@ -7,11 +7,15 @@ def build_response_usuario(msg, resultado):
         Usuario = resultado
         content = {"msg":msg,
                    "usuarioInfo":{
-                            "idUsuario": str(Usuario.getIdUsuario()),
-                            "emailUsuario": str(Usuario.getEmail()), 
-                            "nomeUsuario": str(Usuario.getNome()), 
+                            "id": str(Usuario.getIdUsuario()),
+                            "email": str(Usuario.getEmail()), 
+                            "nome": str(Usuario.getNome()), 
+                            "telefone": str(Usuario.getTelefone()),
+                            "genero": str(Usuario.getGenero()),
+                            "estado": str(Usuario.getEstado()),
+                            "pais": str(Usuario.getPais()),
                             "quantidadeExpAtual": str(Usuario.getQuantidadeExpAtual()),
-                            "codLevel": str(Usuario.getCodLevel())
+                            "level": str(Usuario.getCodLevel())
                         }
                     }
     return content
