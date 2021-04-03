@@ -15,7 +15,7 @@ class UsuarioDAO():
             usuario = self.instanciaUsuarioAPartirDaConsulta(resultado)
             return True, usuario
         else:
-            return False
+            return False, None
         
     def buscarPorEmail(self, email):
         database = DataBase()
@@ -25,7 +25,7 @@ class UsuarioDAO():
             usuario = self.instanciaUsuarioAPartirDaConsulta(resultado)
             return True, usuario
         else:
-            return False
+            return False, None
 
     def buscarPorId(self, idtUsuario):
         database = Database()
@@ -35,7 +35,7 @@ class UsuarioDAO():
             usuario = instanciaUsuarioAPartirDaConsulta(resultado)
             return True, usuario
         else:
-            return False
+            return False, None
     
     def cadastrarNovo(self, usuario):
         self.database = DataBase()
@@ -69,7 +69,7 @@ class UsuarioDAO():
             return True, "Senha alterada com sucesso!"
         else:
             return False, "Código de recuperação de senha ou email inválido"
-            
+
     def instanciaUsuarioAPartirDaConsulta(self, resultadoConsulta):
         return Usuario(idUsuario=resultadoConsulta[0], codLevel=resultadoConsulta[1], nome=resultadoConsulta[2], email=resultadoConsulta[4], 
                             telefone=resultadoConsulta[5], genero=resultadoConsulta[6], estado=resultadoConsulta[7], pais=resultadoConsulta[8], 
