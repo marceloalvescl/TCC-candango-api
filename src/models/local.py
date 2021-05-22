@@ -1,4 +1,5 @@
 from app import db
+from sqlalchemy.orm import relationship
 
 class Local(db.Model):
     __tablename__ = 'tb_local'
@@ -8,7 +9,7 @@ class Local(db.Model):
     geo_lat_ponto_turistico = db.Column(db.String(10), nullable=False)
     geo_long_ponto_turistico = db.Column(db.String(10), nullable=False)
 
-    pontos_turisticos_rel = db.Relationship("PontoTuristico")
+    pontos_turisticos_rel = relationship("PontoTuristico")
     
     def __init__(self, end_ponto_turistico=None,cep_ponto_turistico=None,geo_lat_ponto_turistico= None, geo_long_ponto_turistico= None ):
         self.end_ponto_turistico    = end_ponto_turistico

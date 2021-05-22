@@ -1,3 +1,5 @@
+from models.tipo_turistico import TipoTuristico
+from models.ponto_turistico import PontoTuristico
 from flask import Blueprint, jsonify, request, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_cors import CORS
@@ -5,6 +7,8 @@ from utils.builders import build_response_usuario, build_response
 from settings import logger
 import json
 from models.usuario import Usuario
+from models.ponto_turistico import PontoTuristico
+from models.local import Local
 import sqlalchemy
 from app import db
 
@@ -24,7 +28,6 @@ def candango_signup():
                                 gen_usuario=request.json["gen_usuario"],
                                 est_usuario=request.json["est_usuario"],
                                 pais_usuario=request.json["pais_usuario"])
-                                        
             try:
                 db.session.add(usuario)
                 db.session.commit()
@@ -67,24 +70,32 @@ def candango_usuario():
         if request.json: 
             try:
                 email = request.json['eml_usuario']
-                print("********************************")
-                print(current_user)
                 usuario = Usuario.query.filter(
                     Usuario.eml_usuario.like(email)
                 ).first()
                 if(usuario):
                     logger.info("Informações do usuário: " + usuario.eml_usuario)
-                    print(usuario)
                     return build_response_usuario("Encontrado", usuario), 201
                 else:
                     response = '{"Erro": "Email inexistente"}'
                     return json.loads(response), 401
             except Exception as e :
-                print(e)
+                logger.error(e)
                 content = ""
                 status = 504
     
     return build_response(content, status)
+
+@candango_routes.route('/api/candango/pontosTuristicos', methods=['GET'])
+@login_required
+def candango_lista_pontos_turisticos():
+    if request.method == 'GET':
+        pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
+        listaJsonPontoTuristico = []
+        for pontoTuristico in pontosTuristicos:
+            listaJsonPontoTuristico.append(pontoTuristico.toJson())
+        print(listaJsonPontoTuristico)
+            
 
 @candango_routes.route('/api/candango/forgotPassword', methods=['POST'])
 def candango_forgot_password():
