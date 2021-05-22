@@ -1,5 +1,5 @@
 from flask import Flask, session
-from flask_login import LoginManager
+from flask_login import LoginManager, login_manager
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy 
 from flask_cors import CORS
@@ -15,6 +15,7 @@ SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
 CORS(app, automatic_options=True)
 Session(app)
+login_manager = LoginManager(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request, current_app
+from flask_login import login_user, logout_user, current_user, login_required
 from flask_cors import CORS
 from utils.builders import build_response_usuario, build_response
 from settings import logger
+import json
 from models.usuario import Usuario
-import sqlalchemy 
+import sqlalchemy
 from app import db
 
 candango_routes = Blueprint('candango', __name__)
@@ -21,64 +23,66 @@ def candango_signup():
                                 tlf_usuario=request.json["tlf_usuario"],
                                 gen_usuario=request.json["gen_usuario"],
                                 est_usuario=request.json["est_usuario"],
-                                pais_usuario=request.json["pais_usuario"],
-                                )
-                                
-            '''usuario = Usuario(
-                            eml_usuario='testandoestafuncionalidade@gmail.com',
-                            pwd_usuario='121213431',
-                            nme_usuario='Vitin da Tasmania',
-                            tlf_usuario='6199870-2660',
-                            gen_usuario='M',
-                            est_usuario='DF',
-                            pais_usuario='Brasil')'''
-                            
+                                pais_usuario=request.json["pais_usuario"])
+                                        
             try:
                 db.session.add(usuario)
-                resultado =db.session.commit()
-                print(usuario)
-                print(type(usuario))
-                print("88*************************88")
-                print(resultado)   
+                db.session.commit()
                 return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200 
             except sqlalchemy.exc.IntegrityError as e:
-                print(e)        
-        else:
-            
-            print(request.json)
-            username = request.json['eml_usuario']
-            password = request.json['pwd_usuario']
-            print(username)
-            user = Usuario.query.filter(
-                            Usuario.email.like(username),
-                            Usuario.senha.like(password)).first()
-            status = 409
-            content = user
-            return user, 409
-    return build_response("content", 401)
+                if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
+                    return json.loads('"Erro": "O email informado ja existe no banco"'), 409
+                logger.log(40, e)
+        return build_response("favor enviar json no body", 404)
 
 @candango_routes.route('/api/candango/signin',
                     methods=['POST'])
 def candango_singin():
     if request.method == 'POST':
         if request.json: 
-            content, status = UsuarioController().login(request.json)
+            email = request.json['eml_usuario']
+            senha = request.json['pwd_usuario']
+            usuario = Usuario.query.filter(
+                Usuario.eml_usuario.like(email),
+                Usuario.pwd_usuario.like(senha)
+            ).first()
+            if(usuario):
+                logger.info("Logando usuário: " + usuario.eml_usuario)
+                login_user(usuario)
+                response = '{"Sucesso": "Usuário logado"}'
+                return json.loads(response), 201
+            else:
+                response = '{"Erro": "Usuário ou senha inválidos"}'
+                return json.loads(response), 401
         else:
             content = "Fornecer usuário e senha!"
             status = 400
-
-    return build_response(content, status)
+            return build_response(content, status)
 
 @candango_routes.route('/api/candango/usuario',
                     methods=['GET'])
+@login_required
 def candango_usuario():
     if request.method == 'GET':
-        try:
-            content, status = UsuarioController().buscar_usuario_por_email(request.json)
-        except Exception as e :
-            print(e)
-            content = ""
-            status = 504
+        if request.json: 
+            try:
+                email = request.json['eml_usuario']
+                print("********************************")
+                print(current_user)
+                usuario = Usuario.query.filter(
+                    Usuario.eml_usuario.like(email)
+                ).first()
+                if(usuario):
+                    logger.info("Informações do usuário: " + usuario.eml_usuario)
+                    print(usuario)
+                    return build_response_usuario("Encontrado", usuario), 201
+                else:
+                    response = '{"Erro": "Email inexistente"}'
+                    return json.loads(response), 401
+            except Exception as e :
+                print(e)
+                content = ""
+                status = 504
     
     return build_response(content, status)
 

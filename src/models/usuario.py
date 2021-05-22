@@ -1,4 +1,4 @@
-from app import db
+from app import db, login_manager
 from flask_login import UserMixin
 
 class Usuario(db.Model, UserMixin):
@@ -30,7 +30,11 @@ class Usuario(db.Model, UserMixin):
         self.status_usuario = status_usuario
         self.qtd_exp_atual  = qtd_exp_atual
         self.url_fto_conta  = url_fto_conta
-        
+    
+    def get_id(self):
+        print(self.id_usuario)
+        return(self.id_usuario)
+    
     def __str__(self):
         usuario = '''id={0}: [level={1}, nome={2}, email={3}, senha={4}, telefone={5}, 
                         genero={6}, estado={7}, pais={7}, status={8}, qtdExp={9}, urlFoto={10}]'''.format(
@@ -40,8 +44,8 @@ class Usuario(db.Model, UserMixin):
                                                     self.status_usuario, self.qtd_exp_atual, self.url_fto_conta)
         return usuario                                                                                        
     
-    '''
+
 #standalone callback function
 @login_manager.user_loader
 def get_user(idUsuario):
-    return Usuario.query.filter_by(idUsuario=idUsuario).first()'''
+    return Usuario.query.filter_by(id_usuario=idUsuario).first()
