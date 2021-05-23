@@ -18,7 +18,7 @@ class Usuario(db.Model, UserMixin):
     cod_recuperar_senha = db.Column(db.String(6), nullable=True)
     
     def __init__(self, cod_level=1, nme_usuario=None, eml_usuario=None, pwd_usuario=None, 
-                    tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, status_usuario=True, qtd_exp_atual=0, url_fto_conta=None):
+                    tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, status_usuario=True, qtd_exp_atual=0, url_fto_conta=None, cod_recuperar_senha=None):
         self.cod_level      = cod_level
         self.nme_usuario    = nme_usuario
         self.eml_usuario    = eml_usuario
@@ -30,6 +30,7 @@ class Usuario(db.Model, UserMixin):
         self.status_usuario = status_usuario
         self.qtd_exp_atual  = qtd_exp_atual
         self.url_fto_conta  = url_fto_conta
+        self.cod_recuperar_senha = cod_recuperar_senha
     
     def get_id(self):
         print(self.id_usuario)

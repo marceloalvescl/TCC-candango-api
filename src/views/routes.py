@@ -1,6 +1,6 @@
 from models.tipo_turistico import TipoTuristico
 from models.ponto_turistico import PontoTuristico
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, send_file
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_cors import CORS
 from utils.builders import build_response_usuario, build_response
@@ -11,6 +11,8 @@ from models.ponto_turistico import PontoTuristico
 from models.local import Local
 import sqlalchemy
 from app import db
+
+from controllers import usuario_controller
 
 candango_routes = Blueprint('candango', __name__)
 CORS(candango_routes)
@@ -102,7 +104,11 @@ def candango_forgot_password():
     if request.method == 'POST':
         try:
             print("wtf")
-            content, status = UsuarioController().forgot_password(request.json)
+            email = request.json['eml_usuario']
+            usuario = Usuario.query.filter(
+                Usuario.eml_usuario.like(email)
+            ).first()
+            content, status = usuario_controller.forgotPassword(usuario)
         except Exception as e :
             logger.fatal(e)
             content = ""
@@ -121,6 +127,15 @@ def candango_change_password():
             status = 504
 
     return build_response(content, status)
+
+
+
+@candango_routes.route('/api/candango/imagem/<imagem>', methods=['GET'])
+def candango_imagem(imagem):
+    if request.method == 'GET':
+        return send_file('D:\\TCC-candango-api\\src\\utils\\{0}.jpg'.format(imagem), mimetype='image/jpg')
+        
+
 
 @candango_routes.route('/api/candango/alterarUsuario', methods=['POST'])
 def candango_update_user():
