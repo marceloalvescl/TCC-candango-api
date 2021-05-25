@@ -36,8 +36,10 @@ def candango_signup():
                 return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200 
             except sqlalchemy.exc.IntegrityError as e:
                 if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
-                    return json.loads('"Erro": "O email informado ja existe no banco"'), 409
-                logger.log(40, e)
+                    
+                    response = '{"error": "O email informado ja existe no banco"}'
+                    return json.loads(response), 409
+                logger.fatal(40, e)
         return build_response("favor enviar json no body", 404)
 
 @candango_routes.route('/api/candango/signin',
@@ -54,15 +56,15 @@ def candango_singin():
             if(usuario):
                 logger.info("Logando usuário: " + usuario.eml_usuario)
                 login_user(usuario)
-                response = '{"Sucesso": "Usuário logado"}'
+                response = '{"sucesso": "Usuário logado"}'
                 return json.loads(response), 201
             else:
-                response = '{"Erro": "Usuário ou senha inválidos"}'
+                response = '{"error": "Usuário ou senha inválidos"}'
                 return json.loads(response), 401
         else:
             content = "Fornecer usuário e senha!"
             status = 400
-            return build_response(content, status)
+            return json.loads(content), status
 
 @candango_routes.route('/api/candango/usuario',
                     methods=['GET'])
@@ -79,9 +81,9 @@ def candango_usuario():
                     logger.info("Informações do usuário: " + usuario.eml_usuario)
                     return build_response_usuario("Encontrado", usuario), 201
                 else:
-                    response = '{"Erro": "Email inexistente"}'
+                    response = '{"error": "Email inexistente"}'
                     return json.loads(response), 401
-            except Exception as e :
+            except sqlalchemy.exc.IntegrityError as e:
                 logger.error(e)
                 content = ""
                 status = 504
@@ -120,14 +122,21 @@ def candango_forgot_password():
 def candango_change_password():
     if request.method == 'POST':
         try:
-            content, status = UsuarioController().change_password(request.json)
+            email = request.json['eml_usuario']
+            novaSenha = request.json['nova_senha']
+            codRecuperarSenha = request.json['cod_recuperar_senha']
+            usuario = Usuario.query.filter(
+                Usuario.eml_usuario.like(email),
+                Usuario.cod_recuperar_senha.like(codRecuperarSenha)
+            ).first()
+            content, status = usuario_controller.changePassword(usuario, novaSenha)
         except Exception as e :
             logger.fatal(e)
-            content = ""
-            status = 504
+            content = '{"error": "Email ou código de redefinir senha inválido"}'
+            content = json.loads(content)
+            status = 401
 
     return build_response(content, status)
-
 
 
 @candango_routes.route('/api/candango/imagem/<imagem>', methods=['GET'])
@@ -138,10 +147,19 @@ def candango_imagem(imagem):
 
 
 @candango_routes.route('/api/candango/alterarUsuario', methods=['POST'])
+@login_required
 def candango_update_user():
     if request.method == 'POST':
         try:
-            content, status = UsuarioController().alterarUsuario(request.json)
+            usuario = Usuario(
+                eml_usuario=request.json["eml_usuario"], 
+                nme_usuario=request.json["nme_usuario"],
+                tlf_usuario=request.json["tlf_usuario"],
+                gen_usuario=request.json["gen_usuario"],
+                est_usuario=request.json["est_usuario"],
+                pais_usuario=request.json["pais_usuario"]
+            )
+            content, status = usuario_controller.alterarUsuario(usuario)
         except Exception as e :
             logger.fatal(e)
             content = ""
