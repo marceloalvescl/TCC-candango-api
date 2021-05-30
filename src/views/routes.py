@@ -22,14 +22,15 @@ CORS(candango_routes)
 def candango_signup():
     if request.method == 'POST':
         if request.json: 
+            print(request.json)
             usuario = Usuario(
-                                eml_usuario=request.json["eml_usuario"], 
-                                pwd_usuario=request.json["pwd_usuario"], 
-                                nme_usuario=request.json["nme_usuario"],
-                                tlf_usuario=request.json["tlf_usuario"],
-                                gen_usuario=request.json["gen_usuario"],
-                                est_usuario=request.json["est_usuario"],
-                                pais_usuario=request.json["pais_usuario"])
+                                eml_usuario=request.json["email"], 
+                                pwd_usuario=request.json["password"], 
+                                nme_usuario=request.json["name"],
+                                tlf_usuario=request.json["phone"],
+                                gen_usuario=request.json["gender"],
+                                est_usuario=request.json["state"],
+                                pais_usuario=request.json["country"])
             try:
                 db.session.add(usuario)
                 db.session.commit()
@@ -47,8 +48,8 @@ def candango_signup():
 def candango_singin():
     if request.method == 'POST':
         if request.json: 
-            email = request.json['eml_usuario']
-            senha = request.json['pwd_usuario']
+            email = request.json['email']
+            senha = request.json['password']
             usuario = Usuario.query.filter(
                 Usuario.eml_usuario.like(email),
                 Usuario.pwd_usuario.like(senha)
@@ -66,6 +67,44 @@ def candango_singin():
             status = 400
             return json.loads(content), status
 
+@candango_routes.route('/api/candango/forgotPassword', methods=['POST'])
+def candango_forgot_password():
+    if request.method == 'POST':
+        if request.json:
+            try:
+                print("wree")
+                email = request.json['email']
+                usuario = Usuario.query.filter(
+                    Usuario.eml_usuario.like(email)
+                ).first()
+                content, status = usuario_controller.forgotPassword(usuario)
+                return json.loads(content), status
+            except KeyError as e :
+                logger.fatal(e)
+                content = '{"error" : "Fornecer email!"}'
+                status = 400
+                return json.loads(content), status
+        
+
+@candango_routes.route('/api/candango/changePassword', methods=['POST'])
+def candango_change_password():
+    if request.method == 'POST':
+        try:
+            email = request.json['email']
+            novaSenha = request.json['newpassword']
+            codRecuperarSenha = request.json['recoverycode']
+            usuario = Usuario.query.filter(
+                Usuario.eml_usuario.like(email),
+                Usuario.cod_recuperar_senha.like(codRecuperarSenha)
+            ).first()
+            content, status = usuario_controller.changePassword(usuario, novaSenha)
+        except Exception as e :
+            logger.fatal(e)
+            content = '{"error": "Email ou código de redefinir senha inválido"}'
+            content = json.loads(content)
+            status = 401
+        return build_response(content, status)
+
 @candango_routes.route('/api/candango/usuario',
                     methods=['GET'])
 @login_required
@@ -73,7 +112,7 @@ def candango_usuario():
     if request.method == 'GET':
         if request.json: 
             try:
-                email = request.json['eml_usuario']
+                email = request.json['email']
                 usuario = Usuario.query.filter(
                     Usuario.eml_usuario.like(email)
                 ).first()
@@ -100,49 +139,15 @@ def candango_lista_pontos_turisticos():
             listaJsonPontoTuristico.append(pontoTuristico.toJson())
         print(listaJsonPontoTuristico)
             
-
-@candango_routes.route('/api/candango/forgotPassword', methods=['POST'])
-def candango_forgot_password():
-    if request.method == 'POST':
-        try:
-            print("wtf")
-            email = request.json['eml_usuario']
-            usuario = Usuario.query.filter(
-                Usuario.eml_usuario.like(email)
-            ).first()
-            content, status = usuario_controller.forgotPassword(usuario)
-        except Exception as e :
-            logger.fatal(e)
-            content = ""
-            status = 504
-
-    return build_response(content, status)
-
-@candango_routes.route('/api/candango/changePassword', methods=['POST'])
-def candango_change_password():
-    if request.method == 'POST':
-        try:
-            email = request.json['eml_usuario']
-            novaSenha = request.json['nova_senha']
-            codRecuperarSenha = request.json['cod_recuperar_senha']
-            usuario = Usuario.query.filter(
-                Usuario.eml_usuario.like(email),
-                Usuario.cod_recuperar_senha.like(codRecuperarSenha)
-            ).first()
-            content, status = usuario_controller.changePassword(usuario, novaSenha)
-        except Exception as e :
-            logger.fatal(e)
-            content = '{"error": "Email ou código de redefinir senha inválido"}'
-            content = json.loads(content)
-            status = 401
-
-    return build_response(content, status)
-
-
-@candango_routes.route('/api/candango/imagem/<imagem>', methods=['GET'])
-def candango_imagem(imagem):
+@candango_routes.route('/api/candango/imagem/<image>', methods=['GET'])
+def candango_imagem(image):
     if request.method == 'GET':
-        return send_file('D:\\TCC-candango-api\\src\\utils\\{0}.jpg'.format(imagem), mimetype='image/jpg')
+        try:
+            return send_file('D:\\TCC-candango-api\\src\\utils\\imagens\\{0}.jpg'.format(image), mimetype='image/jpg'), 200
+        except Exception as e:
+            content = '{"error" : "imagem inexistente!"}'
+            status = 404
+            return json.loads(content), status
         
 
 
@@ -152,12 +157,12 @@ def candango_update_user():
     if request.method == 'POST':
         try:
             usuario = Usuario(
-                eml_usuario=request.json["eml_usuario"], 
-                nme_usuario=request.json["nme_usuario"],
-                tlf_usuario=request.json["tlf_usuario"],
-                gen_usuario=request.json["gen_usuario"],
-                est_usuario=request.json["est_usuario"],
-                pais_usuario=request.json["pais_usuario"]
+                eml_usuario=request.json["email"], 
+                nme_usuario=request.json["name"],
+                tlf_usuario=request.json["phone"],
+                gen_usuario=request.json["gender"],
+                est_usuario=request.json["state"],
+                pais_usuario=request.json["country"]
             )
             content, status = usuario_controller.alterarUsuario(usuario)
         except Exception as e :
