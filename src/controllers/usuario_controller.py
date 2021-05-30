@@ -71,3 +71,12 @@ def alterarUsuario(usuario):
             return build_response_usuario("Dados alterados com sucesso", usuario), 200
         except Exception as e:
             logger.fatal(e)
+
+def medalhas(usuario):
+    print("Entreou")
+    email = usuario.eml_usuario
+    usuario = Usuario.query.filter(
+        Usuario.eml_usuario.like(email)
+    ).first()
+    logger.info(usuario.medalhas)
+    return build_response("Medalhas: {0}".format(usuario.medalhas), 201)
