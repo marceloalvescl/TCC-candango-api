@@ -2,7 +2,7 @@ from app import db, login_manager
 from flask_login import UserMixin
 
 
-UsuarioMedalha = db.Table('usuario_medalha',
+UsuarioMedalha = db.Table('ta_usuario_medalha',
     db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
     db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
 )
@@ -31,7 +31,7 @@ class Usuario(db.Model, UserMixin):
     qtd_exp_atual= db.Column(db.Integer, nullable=False)
     url_fto_conta = db.Column(db.Text, nullable=True)
 
-    medalhas = db.relationship('Medalha', secondary='usuario_medalha', backref=db.backref('medalhas_usuario', lazy='dynamic'))
+    medalhas = db.relationship('Medalha', secondary='ta_usuario_medalha', backref=db.backref('medalhas_usuario', lazy='dynamic'))
     
     def __init__(self, cod_level=1, nme_usuario=None, eml_usuario=None, pwd_usuario=None, 
                     tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, status_usuario=True, qtd_exp_atual=0, url_fto_conta=None):
