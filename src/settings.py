@@ -18,7 +18,7 @@ def server_configuration():
     logging.debug("Carregando as variáveis de ambiente")
     config = dict()
     config["Debug"] = "True"
-    config["HttpPort"] = int(os.environ.get('HTTP_PORT', '5000'))
+    config["HttpPort"] = int(os.environ.get('HTTP_PORT', '5001'))
     config["HttpsPort"] = int(os.environ.get('HTTPS_PORT', '8443'))
     config['DatabaseHost'] = DB_CREDENTIALS['DatabaseHost']
     config['DatabaseName'] = DB_CREDENTIALS['DatabaseName']
