@@ -1,6 +1,6 @@
 from models.tipo_turistico import TipoTuristico
 from models.ponto_turistico import PontoTuristico
-from flask import Blueprint, jsonify, request, current_app, send_file
+from flask import Blueprint, jsonify, request, current_app, send_file, Response, make_response
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_cors import CORS
 from utils.builders import build_response_usuario, build_response
@@ -20,33 +20,33 @@ CORS(candango_routes)
 @candango_routes.route('/api/candango/signup',
                     methods=['POST'])
 def candango_signup():
-    if request.method == 'POST':
-        if request.json: 
-            print(request.json)
-            usuario = Usuario(
-                                eml_usuario=request.json["email"], 
-                                pwd_usuario=request.json["password"], 
-                                nme_usuario=request.json["name"],
-                                tlf_usuario=request.json["phone"],
-                                gen_usuario=request.json["gender"],
-                                est_usuario=request.json["state"],
-                                pais_usuario=request.json["country"])
-            try:
-                db.session.add(usuario)
-                db.session.commit()
-                return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200 
-            except sqlalchemy.exc.IntegrityError as e:
-                if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
-                    
-                    response = '{"error": "O email informado ja existe no banco"}'
-                    return json.loads(response), 409
-                logger.fatal(40, e)
-        return build_response("favor enviar json no body", 404)
+    if request.json: 
+        print(request.json)
+        usuario = Usuario(
+                            eml_usuario=request.json["email"], 
+                            pwd_usuario=request.json["password"], 
+                            nme_usuario=request.json["name"],
+                            tlf_usuario=request.json["phone"],
+                            gen_usuario=request.json["gender"],
+                            est_usuario=request.json["state"],
+                            pais_usuario=request.json["country"])
+        try:
+            db.session.add(usuario)
+            db.session.commit()
+            return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200 
+        except sqlalchemy.exc.IntegrityError as e:
+            if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
+                
+                response = '{"error": "O email informado ja existe no banco"}'
+                return json.loads(response), 409
+            logger.fatal(40, e)
+    return build_response("favor enviar json no body", 404)
 
 @candango_routes.route('/api/candango/signin',
                     methods=['POST'])
 def candango_singin():
     if request.method == 'POST':
+        logger.info(request.headers)
         if request.json: 
             email = request.json['email']
             senha = request.json['password']
@@ -57,8 +57,7 @@ def candango_singin():
             if(usuario):
                 logger.info("Logando usuário: " + usuario.eml_usuario)
                 login_user(usuario)
-                response = '{"sucesso": "Usuário logado"}'
-                return json.loads(response), 201
+                return build_response_usuario("Usuário logado", usuario), 200
             else:
                 response = '{"error": "Usuário ou senha inválidos"}'
                 return json.loads(response), 401
@@ -72,7 +71,6 @@ def candango_forgot_password():
     if request.method == 'POST':
         if request.json:
             try:
-                print("wree")
                 email = request.json['email']
                 usuario = Usuario.query.filter(
                     Usuario.eml_usuario.like(email)
@@ -90,6 +88,7 @@ def candango_forgot_password():
 def candango_change_password():
     if request.method == 'POST':
         try:
+            print(request.json)
             email = request.json['email']
             novaSenha = request.json['newpassword']
             codRecuperarSenha = request.json['recoverycode']
@@ -110,24 +109,10 @@ def candango_change_password():
 @login_required
 def candango_usuario():
     if request.method == 'GET':
-        if request.json: 
-            try:
-                email = request.json['email']
-                usuario = Usuario.query.filter(
-                    Usuario.eml_usuario.like(email)
-                ).first()
-                if(usuario):
-                    logger.info("Informações do usuário: " + usuario.eml_usuario)
-                    return build_response_usuario("Encontrado", usuario), 201
-                else:
-                    response = '{"error": "Email inexistente"}'
-                    return json.loads(response), 401
-            except sqlalchemy.exc.IntegrityError as e:
-                logger.error(e)
-                content = ""
-                status = 504
-    
-    return build_response(content, status)
+        usuario = current_user
+        logger.info("Informações do usuário: " + usuario.eml_usuario)
+        return build_response_usuario("Encontrado", usuario), 201
+        
 
 @candango_routes.route('/api/candango/pontosTuristicos', methods=['GET'])
 @login_required
@@ -146,7 +131,7 @@ def candango_imagem(image):
             return send_file('D:\\TCC-candango-api\\src\\utils\\imagens\\{0}.jpg'.format(image), mimetype='image/jpg'), 200
         except Exception as e:
             content = '{"error" : "imagem inexistente!"}'
-            status = 404
+            status = 40
             return json.loads(content), status
         
 
@@ -171,3 +156,4 @@ def candango_update_user():
             status = 504
 
     return build_response(content, status)
+
