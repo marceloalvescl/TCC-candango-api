@@ -2,6 +2,7 @@ from smtplib import SMTP
 from app import db
 from models.usuario import Usuario
 from utils.builders import build_response_usuario
+from utils.builders import build_response
 from settings import logger
 import sqlalchemy
 import random
@@ -71,3 +72,14 @@ def alterarUsuario(usuario):
             return build_response_usuario("Dados alterados com sucesso", usuario), 200
         except Exception as e:
             logger.fatal(e)
+
+def medalhas(usuario):
+    email = usuario.eml_usuario
+    usuario = Usuario.query.filter(
+        Usuario.eml_usuario.like(email)
+    ).first()
+    medalhas = usuario.medalhas
+    for x in medalhas:
+        print(x.nme_medalha)
+    logger.info(usuario.medalhas)
+    return build_response("Medalhas: {0}".format(usuario.medalhas), 201)

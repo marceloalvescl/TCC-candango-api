@@ -1,6 +1,21 @@
 from app import db, login_manager
 from flask_login import UserMixin
 
+
+UsuarioMedalha = db.Table('ta_usuario_medalha',
+    db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
+    db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
+)
+
+class Medalha(db.Model):
+    __tablename__ = 'tb_medalha'
+    id_medalha  = db.Column(db.Integer, db.Sequence('tb_medalha_id_medalha_seq'), primary_key=True)
+    nme_medalha = db.Column(db.String(75), nullable=False)
+    url_img_medalha = db.Column(db.Text, nullable=True)
+    qtd_experiencia = db.Column(db.Integer, nullable=True)
+    
+
+
 class Usuario(db.Model, UserMixin):
     __tablename__ = 'tb_usuario'
     id_usuario  = db.Column(db.Integer, db.Sequence('tb_usuario_id_usuario_seq'), primary_key=True)
@@ -15,10 +30,11 @@ class Usuario(db.Model, UserMixin):
     status_usuario = db.Column(db.Boolean, nullable=False)
     qtd_exp_atual= db.Column(db.Integer, nullable=False)
     url_fto_conta = db.Column(db.Text, nullable=True)
-    cod_recuperar_senha = db.Column(db.String(6), nullable=True)
+
+    medalhas = db.relationship('Medalha', secondary='ta_usuario_medalha', backref=db.backref('medalhas_usuario', lazy='dynamic'))
     
     def __init__(self, cod_level=1, nme_usuario=None, eml_usuario=None, pwd_usuario=None, 
-                    tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, status_usuario=True, qtd_exp_atual=0, url_fto_conta=None, cod_recuperar_senha=None):
+                    tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, status_usuario=True, qtd_exp_atual=0, url_fto_conta=None):
         self.cod_level      = cod_level
         self.nme_usuario    = nme_usuario
         self.eml_usuario    = eml_usuario
@@ -30,7 +46,6 @@ class Usuario(db.Model, UserMixin):
         self.status_usuario = status_usuario
         self.qtd_exp_atual  = qtd_exp_atual
         self.url_fto_conta  = url_fto_conta
-        self.cod_recuperar_senha = cod_recuperar_senha
     
     def get_id(self):
         print(self.id_usuario)

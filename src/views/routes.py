@@ -171,3 +171,18 @@ def candango_update_user():
             status = 504
 
     return build_response(content, status)
+
+@candango_routes.route('/api/candango/medalhasUsuario', methods=['POST'])
+def candango_medalhas_usuario():
+    if request.method == 'POST':
+        try:
+            usuario = Usuario(
+                eml_usuario=request.json["email"],
+            )
+            content, status = usuario_controller.medalhas(usuario)
+        except Exception as e :
+            logger.fatal(e)
+            content = ""
+            status = 504
+
+    return build_response(content, status)
