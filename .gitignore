@@ -5,6 +5,7 @@
 ### Flask ###
 instance/*
 !instance/.gitignore
+**/src/flask_session/
 .webassets-cache
 
 ### Flask.Python Stack ###

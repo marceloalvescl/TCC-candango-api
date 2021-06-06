@@ -42,8 +42,7 @@ def logarUsuario(requestJson):
     if(usuario):
         logger.info("Logando usuário: " + usuario.eml_usuario)
         login_user(usuario)
-        response = '{"sucesso": "Usuário logado"}'
-        return json.loads(response), 201
+        return build_response_usuario("Usuário logado!", usuario), 201
     else:
         response = '{"error": "Usuário ou senha inválidos"}'
         return json.loads(response), 401
@@ -152,10 +151,12 @@ def alterarInfoUsuario(requestJson):
         status = 504
         return json.loads(e, status)
 
+
 def medalhas():
     usuario = current_user
-    medalhas = usuario.medalhas
-    for x in medalhas:
-        print(x.nme_medalha)
-    logger.info(usuario.medalhas)
-    return build_response("Medalhas: {0}".format(usuario.medalhas), 201)
+    dict_medalhas = {}
+    for medalha in usuario.medalhas:
+        dict_medalhas['Id da medalha: ' + str(medalha.id_medalha)] = medalha.toDict()
+    return dict_medalhas, 201
+
+        

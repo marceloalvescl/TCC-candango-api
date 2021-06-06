@@ -6,16 +6,7 @@ UsuarioMedalha = db.Table('ta_usuario_medalha',
     db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
     db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
 )
-
-class Medalha(db.Model):
-    __tablename__ = 'tb_medalha'
-    id_medalha  = db.Column(db.Integer, db.Sequence('tb_medalha_id_medalha_seq'), primary_key=True)
-    nme_medalha = db.Column(db.String(75), nullable=False)
-    url_img_medalha = db.Column(db.Text, nullable=True)
-    qtd_experiencia = db.Column(db.Integer, nullable=True)
-    
-
-
+  
 class Usuario(db.Model, UserMixin):
     __tablename__ = 'tb_usuario'
     id_usuario  = db.Column(db.Integer, db.Sequence('tb_usuario_id_usuario_seq'), primary_key=True)

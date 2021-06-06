@@ -13,7 +13,7 @@ import sqlalchemy
 from app import db
 from routes import candango_routes
 from controllers import usuario_controller
-
+from controllers import medalha_controller
 
 
 @candango_routes.route('/api/candango/pontosTuristicos', methods=['GET'])
@@ -47,4 +47,20 @@ def candango_medalhas_usuario():
             content = ""
             status = 504
 
-    return build_response(content, status)
+    return content, status
+
+@candango_routes.route('/api/candango/medalhas', methods=['POST'])
+@login_required
+def candango_medalhas():
+    try:
+        content, status = medalha_controller.todas_medalhas()
+        logger.info(content)
+        return content, status
+    except Exception as e :
+        logger.fatal(e)
+        content = ""
+        status = 504
+        logger.info(content)
+        return json.loads(content), status
+
+        
