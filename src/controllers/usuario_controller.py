@@ -90,16 +90,10 @@ def gerarCodigoRecuperarSenha(usuario):
     print(usuario)
     codRecuperarSenha = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     usuario.cod_recuperar_senha = codRecuperarSenha
-    
-    try:
-        db.session.add(usuario)
-        db.session.commit()
-        logger.info("Código de recuperar senha gerado" + str(usuario))
-        return "Código de recuperar senha definido!" +  str(usuario)
-    except sqlalchemy.exc.IntegrityError as e:
-        if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
-            return json.loads('"Erro": "O email informado ja existe no banco"'), 409
-        logger.log(40, e)
+    db.session.add(usuario)
+    db.session.commit()
+    logger.info("Código de recuperar senha gerado" + str(usuario))
+    return "Código de recuperar senha gerado!" +  str(usuario)
     
 def alterarSenha(requestJson):
     try:

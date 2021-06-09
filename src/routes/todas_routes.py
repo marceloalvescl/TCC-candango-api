@@ -3,7 +3,6 @@ from models.ponto_turistico import PontoTuristico
 from flask import Blueprint, jsonify, request, current_app, send_file
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_cors import CORS
-from utils.builders import build_response_usuario, build_response
 from settings import logger
 import json
 from models.usuario import Usuario
@@ -21,10 +20,12 @@ from controllers import medalha_controller
 def candango_lista_pontos_turisticos():
     if request.method == 'GET':
         pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
-        listaJsonPontoTuristico = []
+        listaPontosTuristicos = {"pontos turisticos" : []}
         for pontoTuristico in pontosTuristicos:
-            listaJsonPontoTuristico.append(pontoTuristico.toJson())
-        print(listaJsonPontoTuristico)
+            listaPontosTuristicos["pontos turisticos"].append(pontoTuristico.toDict())
+        print(listaPontosTuristicos)
+        return listaPontosTuristicos, 200
+
             
 @candango_routes.route('/api/candango/imagem/<image>', methods=['GET'])
 def candango_imagem(image):

@@ -29,30 +29,28 @@ class PontoTuristico(db.Model):
         self.cod_tipo_turistico = cod_tipo_turistico
         self.cod_local = cod_local
 
-    def toJson(self):
-        local = { 'Endereco': self.ponto_turistico_local.end_ponto_turistico,
-                  'CEP':self.ponto_turistico_local.cep_ponto_turistico,
-                  'Latitude':self.ponto_turistico_local.geo_lat_ponto_turistico,
-                  'Longitude':self.ponto_turistico_local.geo_long_ponto_turistico
-                }
-                
+    def toDict(self):
         ponto_turistico = {
-            'id': self.id_ponto_turistico,
-            'detalhes': {
-                'Nome': self.nme_ponto_turistico,
-                'Micro Ponto':self.micro_ponto_turistico, 
-                'Cod Ponto Pai': self.cod_ponto_turistico_pai,
-                'Descrição': self.dsc_ponto_turistico, 
-                'Url Imagem': self.url_img_ponto_turistico,
-                'Experiência': self.qtd_experiencia,
-                'Cod Tipo': self.cod_tipo_turistico, 
-                'Cod Local': self.cod_local, 
-                'Local': local 
+            "Nome": self.nme_ponto_turistico,
+            "Micro Ponto":self.micro_ponto_turistico, 
+            "Cod Ponto Pai": self.cod_ponto_turistico_pai,
+            "Descrição": self.dsc_ponto_turistico, 
+            "Url Imagem": self.url_img_ponto_turistico,
+            "Experiência": self.qtd_experiencia,
+            "Cod Tipo": self.cod_tipo_turistico, 
+            "Cod Local": self.cod_local, 
+            "Local": { 
+                "Endereco": self.ponto_turistico_local.end_ponto_turistico,
+                "CEP":self.ponto_turistico_local.cep_ponto_turistico,
+                "Latitude":self.ponto_turistico_local.geo_lat_ponto_turistico,
+                "Longitude":self.ponto_turistico_local.geo_long_ponto_turistico
             }
         }
+        return ponto_turistico
 
-        return json.dumps(ponto_turistico)
+    def toJson(self):
+        return json.dumps(self.toDict())
 
     def __str__(self):
-        return str(self.toJson())                                                                                        
+        return str(self.toDict())                                                                                        
     

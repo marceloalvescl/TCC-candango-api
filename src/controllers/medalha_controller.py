@@ -1,8 +1,6 @@
 from smtplib import SMTP
 from app import db
 from models.medalha import Medalha
-from utils.builders import build_response_usuario
-from utils.builders import build_response
 from settings import logger
 
 

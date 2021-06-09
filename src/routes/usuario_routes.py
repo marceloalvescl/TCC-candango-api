@@ -2,7 +2,6 @@ from flask import request
 from flask_login import login_required
 from routes import candango_routes
 from controllers import usuario_controller  
-from utils.builders import build_response, build_response_usuario
 from settings import logger
 import json
 
