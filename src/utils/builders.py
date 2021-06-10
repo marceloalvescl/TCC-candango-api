@@ -8,15 +8,15 @@ def build_response_usuario(msg, resultado):
         
         Usuario = resultado
         content = {"msg":msg,
-                   "usuarioInfo":{
+                   "userInfo":{
                             "id": str(Usuario.id_usuario),
                             "email": str(Usuario.eml_usuario), 
-                            "nome": str(Usuario.nme_usuario), 
-                            "telefone": str(Usuario.tlf_usuario),
-                            "genero": str(Usuario.gen_usuario),
-                            "estado": str(Usuario.est_usuario),
-                            "pais": str(Usuario.pais_usuario),
-                            "quantidadeExpAtual": str(Usuario.qtd_exp_atual),
+                            "name": str(Usuario.nme_usuario), 
+                            "phone": str(Usuario.tlf_usuario),
+                            "gender": str(Usuario.gen_usuario),
+                            "state": str(Usuario.est_usuario),
+                            "country": str(Usuario.pais_usuario),
+                            "currentAmountExp": str(Usuario.qtd_exp_atual),
                             "level": str(Usuario.cod_level)
                         }
                     }

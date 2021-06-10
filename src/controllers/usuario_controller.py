@@ -42,8 +42,7 @@ def logarUsuario(requestJson):
     if(usuario):
         logger.info("Logando usuário: " + usuario.eml_usuario)
         login_user(usuario)
-        response = '{"sucesso": "Usuário logado"}'
-        return json.loads(response), 201
+        return build_response_usuario("Usuário logado!", usuario), 201
     else:
         response = '{"error": "Usuário ou senha inválidos"}'
         return json.loads(response), 401
@@ -91,16 +90,10 @@ def gerarCodigoRecuperarSenha(usuario):
     print(usuario)
     codRecuperarSenha = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     usuario.cod_recuperar_senha = codRecuperarSenha
-    
-    try:
-        db.session.add(usuario)
-        db.session.commit()
-        logger.info("Código de recuperar senha gerado" + str(usuario))
-        return "Código de recuperar senha definido!" +  str(usuario)
-    except sqlalchemy.exc.IntegrityError as e:
-        if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
-            return json.loads('"Erro": "O email informado ja existe no banco"'), 409
-        logger.log(40, e)
+    db.session.add(usuario)
+    db.session.commit()
+    logger.info("Código de recuperar senha gerado" + str(usuario))
+    return "Código de recuperar senha gerado!" +  str(usuario)
     
 def alterarSenha(requestJson):
     try:
@@ -131,8 +124,8 @@ def alterarInfoUsuario(requestJson):
     try:
         usuario = current_user
         if(usuario):
-            usuario.nme_usuario = requestJson["email"]
-            usuario.eml_usuario = requestJson["name"]
+            usuario.nme_usuario = requestJson["name"]
+            usuario.eml_usuario = requestJson["email"]
             usuario.tlf_usuario = requestJson["phone"]
             usuario.gen_usuario = requestJson["gender"]
             usuario.est_usuario = requestJson["state"]
@@ -152,10 +145,6 @@ def alterarInfoUsuario(requestJson):
         status = 504
         return json.loads(e, status)
 
-def medalhas():
-    usuario = current_user
-    medalhas = usuario.medalhas
-    for x in medalhas:
-        print(x.nme_medalha)
-    logger.info(usuario.medalhas)
-    return build_response("Medalhas: {0}".format(usuario.medalhas), 201)
+
+
+        
