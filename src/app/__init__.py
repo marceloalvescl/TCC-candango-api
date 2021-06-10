@@ -22,5 +22,6 @@ db = SQLAlchemy(app)
 
 #Esse import é realizado após o login_manager ser executado para evitar erro de circular import
 from routes.usuario_routes import candango_routes
-from routes.todas_routes import candango_routes
+from routes.pontos_turisticos_routes import candango_routes
+from routes.medalhas_routes import candango_routes
 app.register_blueprint(candango_routes)

@@ -25,9 +25,11 @@ class Medalha(db.Model):
 
     def toDict(self):
         medalha = {
-            'Nome': self.nme_medalha,
-            'UrlImagem':self.url_img_medalha,
-            'QtdExperiencia':self.qtd_experiencia
+            'id' : self.id_medalha,
+            'name': self.nme_medalha,
+            'img':self.url_img_medalha,
+            'exp':self.qtd_experiencia,
+            'hasMedal': False
         }
         return medalha
 

@@ -124,8 +124,8 @@ def alterarInfoUsuario(requestJson):
     try:
         usuario = current_user
         if(usuario):
-            usuario.nme_usuario = requestJson["email"]
-            usuario.eml_usuario = requestJson["name"]
+            usuario.nme_usuario = requestJson["name"]
+            usuario.eml_usuario = requestJson["email"]
             usuario.tlf_usuario = requestJson["phone"]
             usuario.gen_usuario = requestJson["gender"]
             usuario.est_usuario = requestJson["state"]
@@ -146,11 +146,5 @@ def alterarInfoUsuario(requestJson):
         return json.loads(e, status)
 
 
-def medalhas():
-    usuario = current_user
-    dict_medalhas = {}
-    for medalha in usuario.medalhas:
-        dict_medalhas['Id da medalha: ' + str(medalha.id_medalha)] = medalha.toDict()
-    return dict_medalhas, 201
 
         
