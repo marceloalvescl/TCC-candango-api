@@ -20,6 +20,7 @@ class UsuarioPontoTuristico(db.Model):
         ).first()
         userAttraction = {
             "userCode" : self.cod_usuario,
+            "attractionCode" : attraction.id_ponto_turistico,
             "attractionName" : attraction.nme_ponto_turistico,
             "attractionLocal" : attraction.getLocalDict(),
             "ammountVisits" : self.qtd_visitas,

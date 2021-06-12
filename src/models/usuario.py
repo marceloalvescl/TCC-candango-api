@@ -1,6 +1,6 @@
 from app import db, login_manager
 from flask_login import UserMixin
-
+from models.level import Level
 
 UsuarioMedalha = db.Table('ta_usuario_medalha',
     db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
@@ -51,6 +51,18 @@ class Usuario(db.Model, UserMixin):
         self.url_fto_conta  = url_fto_conta
         self.cod_recuperar_senha = cod_recuperar_senha
     
+    def addExp(self, incomingExp):
+        levelAtual = Level.query.filter(
+            Level.id_level == self.cod_level
+        ).first()
+
+        if(levelAtual.qtd_experiencia < (incomingExp + self.qtd_exp_atual)):
+            print("subindo de nível")
+            self.cod_level += 1
+            self.qtd_exp_atual = 0
+        else:
+            self.qtd_exp_atual += incomingExp
+
     def toDict(self):
         usuario = {
             "name": self.nme_usuario,
