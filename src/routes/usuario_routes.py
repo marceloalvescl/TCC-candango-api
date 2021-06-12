@@ -9,7 +9,7 @@ import json
 # ["POST"] para cadastrar novo usuário
 @candango_routes.route('/api/candango/user/signup', methods=['POST'])
 def candango_signup():
-    if request.json: 
+    if request.json:
         return usuario_controller.cadastrarUsuario(request.json)
     return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
 
@@ -17,7 +17,7 @@ def candango_signup():
 # ["POST"] para logar usuário cadastrado
 @candango_routes.route('/api/candango/user/signin', methods=['POST'])
 def candango_singin():
-    if request.json: 
+    if request.json:
         return usuario_controller.logarUsuario(request.json)
     return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
 

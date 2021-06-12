@@ -41,6 +41,21 @@ class Usuario(db.Model, UserMixin):
         self.url_fto_conta  = url_fto_conta
         self.cod_recuperar_senha = cod_recuperar_senha
     
+    def toDict(self):
+        usuario = {
+            "name": self.nme_usuario,
+            "email":self.eml_usuario, 
+            "phone": self.tlf_usuario, 
+            "gender": self.gen_usuario,
+            "country" : self.pais_usuario,
+            "state": self.est_usuario,
+            "status" : self.status_usuario,
+            "level": self.cod_level, 
+            "exp" : self.qtd_exp_atual,
+            "photo" : self.url_fto_conta
+        }
+        return usuario
+
     def get_id(self):
         print(self.id_usuario)
         return(self.id_usuario)
