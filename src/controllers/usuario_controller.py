@@ -44,7 +44,7 @@ def logarUsuario(requestJson):
     if(usuario):
         logger.info("Logando usuário: " + usuario.eml_usuario)
         login_user(usuario)
-        attractions, status = attraction_controller.getAllPontosTuristicos()
+        attractions, status = attraction_controller.getAllAtractions()
         return build_response_login("Usuário logado!", usuario, attractions, status)
     else:
         response = '{"error": "Usuário ou senha inválidos"}'
