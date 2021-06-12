@@ -15,6 +15,7 @@ def getAllAttractions():
 
 def getUserVisitedAttractions():
     usuario = current_user
+    print(current_user.id_usuario)
     userVisitedAttractions = db.session.query(UsuarioPontoTuristico).join(PontoTuristico).filter(
         UsuarioPontoTuristico.cod_usuario == current_user.id_usuario
     ).all()
@@ -34,6 +35,9 @@ def setUserVisitedAttraction(json):
     attraction = db.session.query(PontoTuristico).filter(
         PontoTuristico.nme_ponto_turistico.like(attractionName)
     ).first()
+
+    current_user.addExp(attraction.qtd_experiencia)
+
     userVisitedAttraction = db.session.query(UsuarioPontoTuristico).filter(
         UsuarioPontoTuristico.cod_ponto_turistico == attraction.id_ponto_turistico,
         UsuarioPontoTuristico.cod_usuario == current_user.id_usuario
@@ -45,6 +49,7 @@ def setUserVisitedAttraction(json):
             qtd_visitas = 1
         )
         db.session.add(usuarioPontoTuristico)
+        db.session.add(current_user)
         db.session.commit()
         return {"msg": "ponto turistico visitado!"}, 201
     else:
