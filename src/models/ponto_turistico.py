@@ -31,14 +31,14 @@ class PontoTuristico(db.Model):
 
     def toDict(self):
         ponto_turistico = {
-            "Nome": self.nme_ponto_turistico,
-            "Micro Ponto":self.micro_ponto_turistico, 
-            "Cod Ponto Pai": self.cod_ponto_turistico_pai,
-            "Descrição": self.dsc_ponto_turistico, 
-            "Url Imagem": self.url_img_ponto_turistico,
-            "Experiência": self.qtd_experiencia,
-            "Cod Tipo": self.cod_tipo_turistico, 
-            "Cod Local": self.cod_local, 
+            "name": self.nme_ponto_turistico,
+            "microAttraction":self.micro_ponto_turistico, 
+            "codAttractionFather": self.cod_ponto_turistico_pai,
+            "description": self.dsc_ponto_turistico, 
+            "urlImg": self.url_img_ponto_turistico,
+            "exp": self.qtd_experiencia,
+            "codAttractionType": self.cod_tipo_turistico, 
+            "codLocal": self.cod_local, 
             "Local": { 
                 "Endereco": self.ponto_turistico_local.end_ponto_turistico,
                 "CEP":self.ponto_turistico_local.cep_ponto_turistico,

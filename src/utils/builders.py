@@ -47,3 +47,13 @@ def build_response(content, status):
     content['status'] = status
     return jsonify(content), status
 
+def build_response_login(msg, user, attractions, status):
+
+    content = {
+            'msg': msg,
+            'user': user.toDict(),
+            'attractions' : attractions
+        }
+
+    return jsonify(content), status
+    pass

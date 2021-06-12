@@ -1,7 +1,9 @@
 from smtplib import SMTP
 from app import db
 from models.usuario import Usuario
+from controllers import attraction_controller  
 from utils.builders import build_response_usuario
+from utils.builders import build_response_login
 from utils.builders import build_response
 from settings import logger
 
@@ -42,7 +44,8 @@ def logarUsuario(requestJson):
     if(usuario):
         logger.info("Logando usuário: " + usuario.eml_usuario)
         login_user(usuario)
-        return build_response_usuario("Usuário logado!", usuario), 201
+        attractions, status = attraction_controller.getAllPontosTuristicos()
+        return build_response_login("Usuário logado!", usuario, attractions, status)
     else:
         response = '{"error": "Usuário ou senha inválidos"}'
         return json.loads(response), 401
