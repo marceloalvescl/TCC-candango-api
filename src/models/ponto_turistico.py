@@ -29,6 +29,15 @@ class PontoTuristico(db.Model):
         self.cod_tipo_turistico = cod_tipo_turistico
         self.cod_local = cod_local
 
+    def getLocalDict(self):
+        local = { 
+                "Endereco": self.ponto_turistico_local.end_ponto_turistico,
+                "CEP":self.ponto_turistico_local.cep_ponto_turistico,
+                "Latitude":self.ponto_turistico_local.geo_lat_ponto_turistico,
+                "Longitude":self.ponto_turistico_local.geo_long_ponto_turistico
+            }
+        return local
+
     def toDict(self):
         ponto_turistico = {
             "name": self.nme_ponto_turistico,

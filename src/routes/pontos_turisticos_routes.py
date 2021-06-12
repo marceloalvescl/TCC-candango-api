@@ -8,24 +8,29 @@ from models.local import Local
 import sqlalchemy
 from app import db
 from routes import candango_routes
-from controllers import usuario_controller
-from controllers import medalha_controller
-
+from controllers import usuario_controller, medalha_controller, attraction_controller
+import json
 
 # Rota /api/candango/attractions - Métodos GET
-# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/attractions) 
+# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/user/signin) 
 # ["GET"] para buscar informações de todos os pontos turísticos
-@candango_routes.route('/api/candango/attractions', methods=['GET'])
+@candango_routes.route('/attractions', methods=['GET'])
 @login_required
 def candango_lista_pontos_turisticos():
     if request.method == 'GET':
-        pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
-        listaPontosTuristicos = {"pontos turisticos" : []}
-        for pontoTuristico in pontosTuristicos:
-            listaPontosTuristicos["pontos turisticos"].append(pontoTuristico.toDict())
-        print(listaPontosTuristicos)
-        return listaPontosTuristicos, 200
+        return attraction_controller.getAllAttractions()
 
-            
-
-        
+# Rota /api/candango/attractions/user - Métodos GET
+# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/user/signin) 
+# ["GET"] para buscar informações de todos os pontos turísticos visitados pelo usuário <attraction_controller.getUserVisitedAttractions>
+# ["POST"] para adicionar visita ou incrementar visitas do usuário ao ponto turístico <attraction_controller.setUserVisitedAttraction>
+@candango_routes.route('/attractions/user', methods=['GET', 'POST'])
+@login_required
+def candango_visited_attractions():
+    if request.method == 'GET':
+        return attraction_controller.getUserVisitedAttractions()
+    if request.method == 'POST':
+        if request.json:
+            return attraction_controller.setUserVisitedAttraction(request.json)
+        else:
+            return json.loads('{"error" : "Favor enviar JSON na request"}'), 404             

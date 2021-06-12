@@ -6,7 +6,16 @@ UsuarioMedalha = db.Table('ta_usuario_medalha',
     db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
     db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
 )
-  
+
+'''
+UsuarioPontoTuristico = db.Table('ta_usuario_ponto_turistico',
+    db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
+    db.Column('cod_ponto_turistico', db.Integer, db.ForeignKey('tb_ponto_turistico.id_ponto_turistico')),
+    db.Column('qtd_visitas', db.Integer, nullable=False),
+    db.Column('url_img_usuario_ponto_turistico', db.Text, nullable=True)
+)
+
+'''
 class Usuario(db.Model, UserMixin):
     __tablename__ = 'tb_usuario'
     id_usuario  = db.Column(db.Integer, db.Sequence('tb_usuario_id_usuario_seq'), primary_key=True)
@@ -24,6 +33,7 @@ class Usuario(db.Model, UserMixin):
     cod_recuperar_senha = db.Column(db.String(6), nullable=True)
 
     medalhas = db.relationship('Medalha', secondary='ta_usuario_medalha', backref=db.backref('medalhas_usuario', lazy='dynamic'))
+    attractions = db.relationship('PontoTuristico', secondary='ta_usuario_ponto_turistico', backref=db.backref('pontos_turisticos_usuario', uselist=False))
     
     def __init__(self, cod_level=1, nme_usuario=None, eml_usuario=None, pwd_usuario=None, 
                 tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, 

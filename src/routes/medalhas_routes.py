@@ -11,7 +11,7 @@ from controllers import medalha_controller
 # Rota /api/candango/medals/user - Métodos GET
 # @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
 # ["GET"] para buscar medalhas liberadas pelo usuário logado
-@candango_routes.route('/api/candango/medals/user', methods=['GET'])
+@candango_routes.route('/medals/user', methods=['GET'])
 @login_required
 def candango_medalhas_usuario():
     content, status = medalha_controller.medalhas_usuario()
@@ -20,7 +20,7 @@ def candango_medalhas_usuario():
 # Rota /api/candango/medals/user - Métodos GET
 # @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
 # ["GET"] para buscar todas as medalhas
-@candango_routes.route('/api/candango/medals', methods=['GET'])
+@candango_routes.route('/medals', methods=['GET'])
 @login_required
 def candango_medalhas():
     content, status = medalha_controller.todas_medalhas()
@@ -28,7 +28,7 @@ def candango_medalhas():
 
 # Rota /api/candango/medals/image/<image> - Métodos GET
 # ["GET"] para buscar a imagem da medalha passada como parâmetro
-@candango_routes.route('/api/candango/medals/image/<image>', methods=['GET'])
+@candango_routes.route('/medals/image/<image>', methods=['GET'])
 def candango_imagem(image):
     try:
         logger.info(image)
