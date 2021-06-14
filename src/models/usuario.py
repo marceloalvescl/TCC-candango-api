@@ -2,10 +2,12 @@ from app import db, login_manager
 from flask_login import UserMixin
 from models.level import Level
 
+'''
 UsuarioMedalha = db.Table('ta_usuario_medalha',
     db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
     db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
 )
+'''
 
 '''
 UsuarioPontoTuristico = db.Table('ta_usuario_ponto_turistico',
