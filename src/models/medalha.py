@@ -7,6 +7,7 @@ class Medalha(db.Model):
     nme_medalha = db.Column(db.String(75), nullable=False)
     url_img_medalha = db.Column(db.Text, nullable=True)
     qtd_experiencia = db.Column(db.Integer, nullable=True)
+    cod_ponto_turistico = db.Column(db.Integer, db.ForeignKey('tb_ponto_turistico.id_ponto_turistico'))
     
     def __init__(self, id_medalha=None, nme_medalha=None, url_img_medalha=None, qtd_experiencia=None):
         self.id_medalha  = id_medalha
