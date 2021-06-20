@@ -29,15 +29,15 @@ def getUserMedal():
     for medalha in todas_medalhas:
         dict_medalhas['medals'].append(medalha.toDict())
     
+    print("Medalhas do usuário" + str(usuario.medalhas))
     for medalha in usuario.medalhas:
         
         indice = dict_medalhas['medals'].index(medalha.toDict())
-        if indice != 1:
-            usuarioMedalha = db.session.query(UsuarioMedalha).filter(UsuarioMedalha.cod_usuario==current_user.id_usuario, 
-                                                                    UsuarioMedalha.cod_medalha==medalha.id_medalha
-                                                                    ).first()
-            dict_medalhas['medals'][indice]['unlockDate'] = usuarioMedalha.dta_conquista_medalha
-            dict_medalhas['medals'][indice]['hasMedal'] = True
+        usuarioMedalha = db.session.query(UsuarioMedalha).filter(UsuarioMedalha.cod_usuario==current_user.id_usuario, 
+                                                                UsuarioMedalha.cod_medalha==medalha.id_medalha
+                                                                ).first()
+        dict_medalhas['medals'][indice]['unlockDate'] = usuarioMedalha.dta_conquista_medalha
+        dict_medalhas['medals'][indice]['hasMedal'] = True
 
     return dict_medalhas, 201
 
