@@ -1,23 +1,8 @@
 from app import db, login_manager
 from flask_login import UserMixin
 from models.level import Level
+from sqlalchemy.dialects.postgresql import BYTEA
 
-'''
-UsuarioMedalha = db.Table('ta_usuario_medalha',
-    db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
-    db.Column('cod_medalha', db.Integer, db.ForeignKey('tb_medalha.id_medalha'))
-)
-'''
-
-'''
-UsuarioPontoTuristico = db.Table('ta_usuario_ponto_turistico',
-    db.Column('cod_usuario', db.Integer, db.ForeignKey('tb_usuario.id_usuario')),
-    db.Column('cod_ponto_turistico', db.Integer, db.ForeignKey('tb_ponto_turistico.id_ponto_turistico')),
-    db.Column('qtd_visitas', db.Integer, nullable=False),
-    db.Column('url_img_usuario_ponto_turistico', db.Text, nullable=True)
-)
-
-'''
 class Usuario(db.Model, UserMixin):
     __tablename__ = 'tb_usuario'
     id_usuario  = db.Column(db.Integer, db.Sequence('tb_usuario_id_usuario_seq'), primary_key=True)
@@ -31,7 +16,7 @@ class Usuario(db.Model, UserMixin):
     pais_usuario = db.Column(db.String(100), nullable=False)
     status_usuario = db.Column(db.Boolean, nullable=False)
     qtd_exp_atual= db.Column(db.Integer, nullable=False)
-    url_fto_conta = db.Column(db.Text, nullable=True)
+    bytea_fto_conta = db.Column(BYTEA, nullable=True)
     cod_recuperar_senha = db.Column(db.String(6), nullable=True)
 
     medalhas = db.relationship('Medalha', secondary='ta_usuario_medalha', backref=db.backref('medalhas_usuario', lazy='dynamic'))
@@ -39,7 +24,7 @@ class Usuario(db.Model, UserMixin):
     
     def __init__(self, cod_level=1, nme_usuario=None, eml_usuario=None, pwd_usuario=None, 
                 tlf_usuario=None, gen_usuario=None, est_usuario=None, pais_usuario=None, 
-                status_usuario=True, qtd_exp_atual=0, url_fto_conta=None, cod_recuperar_senha=None):
+                status_usuario=True, qtd_exp_atual=0, bytea_fto_conta=None, cod_recuperar_senha=None):
         self.cod_level      = cod_level
         self.nme_usuario    = nme_usuario
         self.eml_usuario    = eml_usuario
@@ -50,7 +35,7 @@ class Usuario(db.Model, UserMixin):
         self.pais_usuario   = pais_usuario
         self.status_usuario = status_usuario
         self.qtd_exp_atual  = qtd_exp_atual
-        self.url_fto_conta  = url_fto_conta
+        self.bytea_fto_conta  = bytea_fto_conta
         self.cod_recuperar_senha = cod_recuperar_senha
     
     def addExp(self, incomingExp):
@@ -76,7 +61,7 @@ class Usuario(db.Model, UserMixin):
             "status" : self.status_usuario,
             "level": self.cod_level, 
             "exp" : self.qtd_exp_atual,
-            "photo" : self.url_fto_conta
+            "photo" : ""
         }
         return usuario
 
@@ -90,7 +75,7 @@ class Usuario(db.Model, UserMixin):
                                                     self.id_usuario, self.cod_level, self.nme_usuario, 
                                                     self.eml_usuario, self.pwd_usuario, self.tlf_usuario,
                                                     self.gen_usuario, self.est_usuario, self.pais_usuario,
-                                                    self.status_usuario, self.qtd_exp_atual, self.url_fto_conta)
+                                                    self.status_usuario, self.qtd_exp_atual, self.bytea_fto_conta)
         return usuario                                                                                        
     
 

@@ -8,15 +8,22 @@ from utils.builders import build_response
 from settings import logger
 
 from flask_login import login_user, current_user
+from passlib.context import CryptContext
+from flask import send_file
 import sqlalchemy
 import random
 import string 
 import json
+import PIL.Image as Image
+import io
+
+pwd_ctxt = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
 def cadastrarUsuario(requestJson):
+    hashedPassword = pwd_ctxt.hash(requestJson["password"])
     usuario = Usuario(
                 eml_usuario=requestJson["email"], 
-                pwd_usuario=requestJson["password"], 
+                pwd_usuario=hashedPassword,
                 nme_usuario=requestJson["name"],
                 tlf_usuario=requestJson["phone"],
                 gen_usuario=requestJson["gender"],
@@ -26,7 +33,8 @@ def cadastrarUsuario(requestJson):
     try:
         db.session.add(usuario)
         db.session.commit()
-        return build_response_usuario("Cadastro realizado com sucesso!", usuario), 200 
+        attractions, status = attraction_controller.getAllAttractions()
+        return build_response_login("Cadastro realizado com sucesso!", usuario, attractions, status) 
     except sqlalchemy.exc.IntegrityError as e:
         if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
             
@@ -36,12 +44,12 @@ def cadastrarUsuario(requestJson):
 
 def logarUsuario(requestJson):
     email = requestJson['email']
-    senha = requestJson['password']
     usuario = Usuario.query.filter(
-        Usuario.eml_usuario.like(email),
-        Usuario.pwd_usuario.like(senha)
+        Usuario.eml_usuario.like(email)
     ).first()
-    if(usuario):
+
+    verifyHash = pwd_ctxt.verify( requestJson["password"], usuario.pwd_usuario)
+    if(usuario and verifyHash):
         logger.info("Logando usuário: " + usuario.eml_usuario)
         login_user(usuario)
         attractions, status = attraction_controller.getAllAttractions()
@@ -148,6 +156,19 @@ def alterarInfoUsuario(requestJson):
         status = 504
         return json.loads(e, status)
 
+def imagemPerfil(file):
+    try:
+        current_user.bytea_fto_conta = file.read()
+        db.session.add(current_user)
+        db.session.commit()
+        return {'msg' : 'Imagem de perfil adicionada'}, 200
+    except Exception as e:
+        return {'msg': 'Algo deu errado, contate o suporte'}, 500
 
-
-        
+def getImagemPerfil():
+    bytes = current_user.bytea_fto_conta
+    image = Image.open(io.BytesIO(bytes))
+    img_io = io.BytesIO()
+    image.save(img_io, "PNG", quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/png'), 200

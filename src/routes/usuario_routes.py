@@ -48,3 +48,17 @@ def candango_user():
         if request.json:
             return usuario_controller.alterarInfoUsuario(request.json)
         return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
+
+
+# Rota /api/candango/user - Métodos POST e PUT
+# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
+# ["GET"] para buscar imagem do perfil do usuário logado
+# ["PUT"] para enviar ou alterar imagem do perfil do usuário logado
+@candango_routes.route('/user/image', methods=['POST', 'GET'])
+@login_required
+def candango_user_image():
+    if request.method == 'POST':
+        return usuario_controller.imagemPerfil(request.files['image'])
+    if request.method == 'GET':
+        return usuario_controller.getImagemPerfil()
+    
