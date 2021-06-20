@@ -2,14 +2,16 @@ from app import db
 from models.ponto_turistico import PontoTuristico
 from models.usuario_ponto_turistico import UsuarioPontoTuristico
 from models.local import Local
-
+from settings import logger
 from flask_login import current_user
+from sqlalchemy  import func
+import datetime
 
 def getAllAttractions():
     pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
-    listaPontosTuristicos = {"pontos turisticos" : []}
+    listaPontosTuristicos = []
     for pontoTuristico in pontosTuristicos:
-        listaPontosTuristicos["pontos turisticos"].append(pontoTuristico.toDict())
+        listaPontosTuristicos.append(pontoTuristico.toDict())
     print(listaPontosTuristicos)
     return listaPontosTuristicos, 200
 
@@ -30,10 +32,10 @@ def getUserVisitedAttractions():
     return dict_attractions, 201
 
 def setUserVisitedAttraction(json):
-    attractionName = json['attractionName']
+    attractionCode = json['attractionCode']
     
     attraction = db.session.query(PontoTuristico).filter(
-        PontoTuristico.nme_ponto_turistico.like(attractionName)
+        PontoTuristico.id_ponto_turistico == attractionCode
     ).first()
 
     current_user.addExp(attraction.qtd_experiencia)
@@ -53,8 +55,17 @@ def setUserVisitedAttraction(json):
         db.session.commit()
         return {"msg": "ponto turistico visitado!"}, 201
     else:
-        userVisitedAttraction.qtd_visitas += 1
-        db.session.add(userVisitedAttraction)
-        db.session.commit() 
-        return {"msg": "ponto turistico visitado novamente!"}, 201
-    
+        
+        last_visit = userVisitedAttraction.dta_usuario_ponto_turistico
+        current_time = datetime.datetime.now()
+        difference =  current_time - last_visit
+        logger.info("Última visita há: " + str(difference.days) + " dias")
+
+        if(difference.days >= 1):
+            userVisitedAttraction.dta_usuario_ponto_turistico = func.current_timestamp()
+            userVisitedAttraction.qtd_visitas += 1
+            db.session.add(userVisitedAttraction)
+            db.session.commit() 
+            return {"msg": "ponto turistico visitado novamente!"}, 201
+        else:
+            return {"msg": "Usuário já visitou esse ponto turístico nas últimas 24 horas!"}, 201

@@ -1,5 +1,7 @@
 from app import db
 from models.ponto_turistico import PontoTuristico
+from sqlalchemy.types import DateTime
+from sqlalchemy  import func
 
 class UsuarioPontoTuristico(db.Model):
     __tablename__ = 'ta_usuario_ponto_turistico'
@@ -8,11 +10,14 @@ class UsuarioPontoTuristico(db.Model):
     cod_ponto_turistico = db.Column(db.Integer, db.ForeignKey('tb_ponto_turistico.id_ponto_turistico'))
     qtd_visitas = db.Column(db.Integer, nullable=False)
     url_img_usuario_ponto_turistico = db.Column(db.Text, nullable=True)
+    dta_usuario_ponto_turistico = db.Column(db.DateTime, nullable=False)
+
     def __init__(self, cod_usuario=None, cod_ponto_turistico=None, qtd_visitas=None, url_img_usuario_ponto_turistico=None):
         self.cod_usuario = cod_usuario
         self.cod_ponto_turistico = cod_ponto_turistico
         self.qtd_visitas = qtd_visitas
         self.url_img_usuario_ponto_turistico = url_img_usuario_ponto_turistico
+        self.dta_usuario_ponto_turistico = func.current_timestamp()
 
     def toDict(self):
         attraction = PontoTuristico.query.filter(
