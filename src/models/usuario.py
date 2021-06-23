@@ -2,6 +2,9 @@ from app import db, login_manager
 from flask_login import UserMixin
 from models.level import Level
 from sqlalchemy.dialects.postgresql import BYTEA
+from controllers import level_controller
+
+
 
 class Usuario(db.Model, UserMixin):
     __tablename__ = 'tb_usuario'
@@ -39,16 +42,8 @@ class Usuario(db.Model, UserMixin):
         self.cod_recuperar_senha = cod_recuperar_senha
     
     def addExp(self, incomingExp):
-        levelAtual = Level.query.filter(
-            Level.id_level == self.cod_level
-        ).first()
-
-        if(levelAtual.qtd_experiencia < (incomingExp + self.qtd_exp_atual)):
-            print("subindo de nível")
-            self.cod_level += 1
-            self.qtd_exp_atual = 0
-        else:
-            self.qtd_exp_atual += incomingExp
+        level_controller.addExp(self, incomingExp)
+        
 
     def toDict(self):
         usuario = {
@@ -59,14 +54,14 @@ class Usuario(db.Model, UserMixin):
             "country" : self.pais_usuario,
             "state": self.est_usuario,
             "status" : self.status_usuario,
-            "level": self.cod_level, 
+            "level": self.cod_level,
+            "levelInfo" : level_controller.getLevelById(self.cod_level),
             "exp" : self.qtd_exp_atual,
-            "photo" : ""
+            "photo" : "https://candango.ngrok.io/api/candango/user/image"
         }
         return usuario
 
     def get_id(self):
-        print(self.id_usuario)
         return(self.id_usuario)
     
     def __str__(self):

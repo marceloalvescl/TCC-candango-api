@@ -1,6 +1,8 @@
 from app import db
 from sqlalchemy.orm import relationship
 
+
+
 class Local(db.Model):
     __tablename__ = 'tb_local'
     id_local  = db.Column(db.Integer, db.Sequence('tb_local_id_local_seq'), primary_key=True)

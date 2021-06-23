@@ -1,6 +1,8 @@
 from app import db
 import json
 
+
+
 class Medalha(db.Model):
     __tablename__ = 'tb_medalha'
     id_medalha  = db.Column(db.Integer, db.Sequence('tb_medalha_id_medalha_seq'), primary_key=True)
@@ -29,8 +31,7 @@ class Medalha(db.Model):
             'id' : self.id_medalha,
             'name': self.nme_medalha,
             'img':self.url_img_medalha,
-            'exp':self.qtd_experiencia,
-            'hasMedal': False
+            'exp':self.qtd_experiencia
         }
         return medalha
 

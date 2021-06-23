@@ -1,10 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
 from app import db
 from models.medalha import Medalha
-from sqlalchemy.types import DateTime
 from sqlalchemy  import func
+import datetime
+from settings import logger
 
-from models.usuario import Usuario
+
 
 class UsuarioMedalha(db.Model):
     __tablename__ = 'ta_usuario_medalha'
@@ -24,9 +24,12 @@ class UsuarioMedalha(db.Model):
         medal = Medalha.query.filter(
             Medalha.id_medalha == self.cod_medalha
         ).first()
+        lastVisit = self.dta_conquista_medalha.strftime('%d-%m-%Y')
+        logger.info(lastVisit)
         userMedal = {
             "userCode" : self.cod_usuario,
-            "unlockDate" : self.dta_conquista_medalha,
+            "unlockDate" : lastVisit,
+            "unlockDate1" : self.dta_conquista_medalha,
             "medalha" : medal.toDict()
         }
         return userMedal

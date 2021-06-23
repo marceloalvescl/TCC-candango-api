@@ -1,5 +1,5 @@
 from app import db
-from sqlalchemy.orm import relationship
+
 
 
 class Level(db.Model):
@@ -22,5 +22,5 @@ class Level(db.Model):
 
     def __str__(self):
         
-        return tipo_turistico                                                                                        
+        return self.toDict()                                                                                        
     

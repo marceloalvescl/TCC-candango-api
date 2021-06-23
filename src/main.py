@@ -9,6 +9,4 @@ if __name__ == '__main__':
     try:
         app.run(host="127.0.0.1", port=int(server_config["HttpPort"]), debug=True)
     except Exception as e:
-        print("Error")
-        print(e)
-    
+        pass

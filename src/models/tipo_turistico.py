@@ -2,6 +2,7 @@ from app import db
 from sqlalchemy.orm import relationship
 
 
+
 class TipoTuristico(db.Model):
     __tablename__ = 'td_tipo_turistico'
     id_tipo_turistico  = db.Column(db.Integer, db.Sequence('td_tipo_turistico_id_tipo_turistico_seq'), primary_key=True)
