@@ -1,9 +1,9 @@
-from flask import request
-from flask_login import login_required
 from routes import candango_routes
 from controllers import usuario_controller  
 from settings import logger
-import json
+
+from flask import request
+from flask_login import login_required
 
 # Rota /api/candango/user/signup - Método POST
 # ["POST"] para cadastrar novo usuário
@@ -11,7 +11,7 @@ import json
 def candango_signup():
     if request.json:
         return usuario_controller.cadastrarUsuario(request.json)
-    return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
+    return {"error" : "Favor enviar JSON na request"}, 404
 
 # Rota /api/candango/user/signin - Método POST
 # ["POST"] para logar usuário cadastrado
@@ -19,7 +19,15 @@ def candango_signup():
 def candango_singin():
     if request.json:
         return usuario_controller.logarUsuario(request.json)
-    return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
+    return {"error" : "Favor enviar JSON na request"}, 404
+
+# Rota /api/candango/user/signout - Método GET
+# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
+# ["GET"] para deslogar usuário cadastrado
+@candango_routes.route('/user/signout', methods=['GET'])
+@login_required
+def candango_signout():
+    return usuario_controller.deslogarUsuario()
 
 # Rota /api/candango/user/forgotPassword - Métodos POST e PUT
 # ["POST"] para receber código de redefinição de senha  
@@ -29,11 +37,14 @@ def candango_forgot_password():
     if request.method == 'POST':
         if request.json: 
             return usuario_controller.esqueceuSenha(request.json)
-        return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
+        return {"error" : "Favor enviar JSON na request"}, 404
     elif request.method == 'PUT':
         if request.json: 
+            logger.info(request.json)
             return usuario_controller.alterarSenha(request.json)
-        return json.loads('{"error" : "Favor enviar JSON na request"}'), 404        
+        return {"error" : "Favor enviar JSON na request"}, 404        
+
+
 
 # Rota /api/candango/user - Métodos POST e PUT
 # @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
@@ -47,8 +58,17 @@ def candango_user():
     elif request.method == 'PUT':
         if request.json:
             return usuario_controller.alterarInfoUsuario(request.json)
-        return json.loads('{"error" : "Favor enviar JSON na request"}'), 404
+        return {"error" : "Favor enviar JSON na request"}, 404
 
+# Rota /api/candango/user/deactivate - Métodos GET
+# @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
+# ["GET"] para desativar conta do usuário logado
+@candango_routes.route('/user/deactivate', methods=['GET'])
+@login_required
+def candango_user_deactivate():
+    if request.method == 'GET':
+        return usuario_controller.desativarContaUsuario()
+    
 
 # Rota /api/candango/user - Métodos POST e PUT
 # @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
@@ -58,7 +78,7 @@ def candango_user():
 @login_required
 def candango_user_image():
     if request.method == 'POST':
-        return usuario_controller.imagemPerfil(request.files['image'])
+        return usuario_controller.setImagemPerfil(request.files['image'])
     if request.method == 'GET':
         return usuario_controller.getImagemPerfil()
     

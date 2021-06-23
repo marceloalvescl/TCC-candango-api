@@ -29,8 +29,7 @@ class Medalha(db.Model):
             'id' : self.id_medalha,
             'name': self.nme_medalha,
             'img':self.url_img_medalha,
-            'exp':self.qtd_experiencia,
-            'hasMedal': False
+            'exp':self.qtd_experiencia
         }
         return medalha
 

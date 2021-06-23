@@ -2,20 +2,16 @@ from smtplib import SMTP
 from app import db
 from models.usuario import Usuario
 from controllers import attraction_controller  
-from utils.builders import build_response_usuario
-from utils.builders import build_response_login
-from utils.builders import build_response
+from utils.builders import build_response_usuario, build_response_login, build_response, email_message_template
 from settings import logger
 
-from flask_login import login_user, current_user
-from passlib.context import CryptContext
 from flask import send_file
+from flask_login import login_user, current_user, logout_user
+from passlib.context import CryptContext
+from utils import bytesToImg
 import sqlalchemy
 import random
 import string 
-import json
-import PIL.Image as Image
-import io
 
 pwd_ctxt = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
@@ -38,25 +34,40 @@ def cadastrarUsuario(requestJson):
     except sqlalchemy.exc.IntegrityError as e:
         if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
             
-            response = '{"error": "O email informado ja existe no banco"}'
-            return json.loads(response), 409
+            response = {"error": "O email informado ja existe no banco"}
+            return response, 409
         logger.fatal(40, e)
 
 def logarUsuario(requestJson):
     email = requestJson['email']
     usuario = Usuario.query.filter(
-        Usuario.eml_usuario.like(email)
+        Usuario.eml_usuario.like(email),
+        Usuario.status_usuario == True
     ).first()
-
-    verifyHash = pwd_ctxt.verify( requestJson["password"], usuario.pwd_usuario)
-    if(usuario and verifyHash):
-        logger.info("Logando usuário: " + usuario.eml_usuario)
-        login_user(usuario)
-        attractions, status = attraction_controller.getAllAttractions()
-        return build_response_login("Usuário logado!", usuario, attractions, status)
+    logger.info("wtf")
+    if usuario:
+        logger.info("usuario existe")
+        verifyHash = pwd_ctxt.verify( requestJson["password"], usuario.pwd_usuario)
+        logger.info(verifyHash)
+        if( verifyHash):
+            logger.info("Logando usuário: " + usuario.eml_usuario)
+            login_user(usuario)
+            attractions, status = attraction_controller.getAllAttractions()
+            return build_response_login("Usuário logado!", usuario, attractions, status)
+        elif(usuario.status_usuario == False):
+            return {'error' : 'Esta conta está desativada!'}
+        elif(not verifyHash):
+            response = {"error": "Usuário ou senha inválidos"}
+            return response, 401
     else:
-        response = '{"error": "Usuário ou senha inválidos"}'
-        return json.loads(response), 401
+        logger.info("wtf1")
+        response = {"error": "Usuário ou senha inválidos"}
+        return response, 401
+
+def deslogarUsuario():
+    logout_user()
+    response = {"Sucesso": "Logout realizado com sucesso"}
+    return response, 201
 
 def esqueceuSenha(requestJson):
     try:
@@ -65,18 +76,17 @@ def esqueceuSenha(requestJson):
             Usuario.eml_usuario.like(email)
         ).first()
         content, status = enviarCodigoRecuperacaoSenha(usuario)
-        return json.loads(content), status
+        return content, status
     except KeyError as e :
         logger.fatal(e)
-        content = '{"error" : "Fornecer email!"}'
+        content = {"error" : "Fornecer email!"}
         status = 400
-        return json.loads(content), status
+        return content, status
 
 def enviarCodigoRecuperacaoSenha(usuario):
     with SMTP('smtp.gmail.com') as smtp:
         try: 
-            resultado = gerarCodigoRecuperarSenha(usuario)
-            print(resultado)
+            gerarCodigoRecuperarSenha(usuario)
             smtp.ehlo()
             smtp.starttls()
             smtp.login("candangoapp@gmail.com","Candango2021")
@@ -84,45 +94,44 @@ def enviarCodigoRecuperacaoSenha(usuario):
             usuario = Usuario.query.filter(
                 Usuario.eml_usuario.like(email)
             ).first()
-            msg = usuario.cod_recuperar_senha
+            msg = email_message_template(usuario)
             smtp.sendmail("candangoapp@gmail.com", usuario.eml_usuario, msg)
             smtp.quit()
             status = 200
-            response = '{"sucesso": "Email com código de redefinição enviado!"}'
+            response = {"sucesso": "Email com código de redefinição enviado!"}
+            return response, status
             
         except Exception as e:
-            print(e)
             status = 400
-            response = '{"error": "Email inexistente"}'
-        return response, status
+            response = {"error": "Email inexistente"}
+            return response, status
 
 def gerarCodigoRecuperarSenha(usuario):
-    print(type(usuario))
-    print(usuario)
     codRecuperarSenha = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     usuario.cod_recuperar_senha = codRecuperarSenha
     db.session.add(usuario)
     db.session.commit()
+    db.session.refresh(usuario)
     logger.info("Código de recuperar senha gerado" + str(usuario))
     return "Código de recuperar senha gerado!" +  str(usuario)
     
 def alterarSenha(requestJson):
     try:
         email = requestJson['email']
-        novaSenha = requestJson['newpassword']
+        newHashedPassword = pwd_ctxt.hash(requestJson['newpassword'])
         codRecuperarSenha = requestJson['recoverycode']
         usuario = Usuario.query.filter(
             Usuario.eml_usuario.like(email),
             Usuario.cod_recuperar_senha.like(codRecuperarSenha)
         ).first()
-        usuario.pwd_usuario = novaSenha
+        usuario.pwd_usuario = newHashedPassword
         db.session.add(usuario)
         db.session.commit()
         return build_response_usuario("Senha alterada com sucesso", usuario), 200
     except Exception as e :
         logger.fatal(e)
-        content = '{"error": "Email ou código de redefinir senha inválido"}'
-        content = json.loads(content)
+        content = {"error": "Email ou código de redefinir senha inválido"}
+        content = content
         status = 401
     return build_response(content, status)
 
@@ -143,20 +152,20 @@ def alterarInfoUsuario(requestJson):
             usuario.pais_usuario = requestJson["country"]
             db.session.add(usuario)
             db.session.commit()
-            return build_response_usuario("Dados alterados com sucesso", usuario), 200
+            return build_response_usuario("Dados alterados com sucesso", usuario), 201
             
     except KeyError as e :
         logger.fatal(e)
-        content = '{"error": "JSON incorreto"}'
+        content = {"error": "JSON incorreto"}
         status = 404
-        return json.loads(content), status
+        return content, status
     except Exception as e:
         logger.fatal(e)
-        content = '{"error" : "{}"}'.format(e)
+        content = {"error" : "Algum valor do JSON não está de acordo com restrições da coluna na tebela de usuário na base de dados"}
         status = 504
-        return json.loads(e, status)
+        return content, status
 
-def imagemPerfil(file):
+def setImagemPerfil(file):
     try:
         current_user.bytea_fto_conta = file.read()
         db.session.add(current_user)
@@ -167,8 +176,17 @@ def imagemPerfil(file):
 
 def getImagemPerfil():
     bytes = current_user.bytea_fto_conta
-    image = Image.open(io.BytesIO(bytes))
-    img_io = io.BytesIO()
-    image.save(img_io, "PNG", quality=70)
-    img_io.seek(0)
+    img_io = bytesToImg.bytesToPNG(bytes=bytes)
     return send_file(img_io, mimetype='image/png'), 200
+
+def desativarContaUsuario():
+    current_user.status_usuario = False
+    db.add(current_user)
+    db.commit()
+    return {'msg' : 'Conta desativada'}, 200
+
+def ativarContaUsuario():
+    current_user.status_usuario = True
+    db.add(current_user)
+    db.commit()
+    return {'msg' : 'Conta ativada'}, 200

@@ -1,6 +1,5 @@
 from app import db
 from models.ponto_turistico import PontoTuristico
-from sqlalchemy.types import DateTime
 from sqlalchemy  import func
 
 class UsuarioPontoTuristico(db.Model):
