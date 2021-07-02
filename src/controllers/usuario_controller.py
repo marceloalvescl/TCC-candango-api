@@ -30,6 +30,7 @@ def cadastrarUsuario(requestJson):
         db.session.add(usuario)
         db.session.commit()
         attractions, status = attraction_controller.getAllAttractions()
+        login_user(usuario)
         return build_response_login("Cadastro realizado com sucesso!", usuario, attractions, status) 
     except sqlalchemy.exc.IntegrityError as e:
         if(str(e).find('(psycopg2.errors.UniqueViolation)') != -1):
@@ -137,22 +138,28 @@ def informacoesUsuarioLogado():
     logger.info("Informações do usuário: " + usuario.eml_usuario)
     return build_response_usuario("Encontrado", current_user), 201
 
+def alterarSenhaUsuarioLogado(requestJson):
+    if (pwd_ctxt.verify(requestJson["oldPassword"], current_user.pwd_usuario)):
+        current_user.pwd_usuario = pwd_ctxt.hash(requestJson['newPassword'])
+        db.session.add(current_user)
+        db.session.commit()
+        attractions, status = attraction_controller.getAllAttractions()
+        return build_response_login("Dados alterados com sucesso", current_user, attractions, status)
+    else:
+        return {'error' : 'Senha atual informada está incorreta!'}, 401
+
 def alterarInfoUsuario(requestJson):
     try:
         logger.info(requestJson)
         usuario = current_user
-
+        
         usuario.nme_usuario = requestJson["name"]
         #usuario.eml_usuario = requestJson["email"]
         usuario.tlf_usuario = requestJson["phone"]
         usuario.gen_usuario = requestJson["gender"]
         usuario.est_usuario = requestJson["state"]
         usuario.pais_usuario = requestJson["country"]
-        if ("oldPassword" in requestJson and "newPassword" in requestJson):
-            if (pwd_ctxt.verify(requestJson["oldPassword"], current_user.pwd_usuario)):
-                current_user.pwd_usuario = pwd_ctxt.hash(requestJson['newPassword'])
-            else:
-                return {'error' : 'Senha atual informada está incorreta!'}, 401
+        
         logger.info(current_user.pwd_usuario)
         db.session.add(usuario)
         db.session.commit()

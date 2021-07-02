@@ -25,7 +25,7 @@ def candango_singin():
 # @login_required - Necessário enviar cookie com sessão válida (autenticação do usuário /api/candango/usuario/signin) 
 # ["GET"] para deslogar usuário cadastrado
 @candango_routes.route('/user/signout', methods=['GET'])
-@login_required
+#@login_required
 def candango_signout():
     return usuario_controller.deslogarUsuario()
 
@@ -55,7 +55,10 @@ def candango_user():
         return usuario_controller.informacoesUsuarioLogado()
     elif request.method == 'PUT':
         if request.json:
-            return usuario_controller.alterarInfoUsuario(request.json)
+            if 'oldPassword' in request.json and 'newPassword' in request.json:
+                return usuario_controller.alterarSenhaUsuarioLogado(request.json)
+            else:
+                return usuario_controller.alterarInfoUsuario(request.json)
         return {"error" : "Favor enviar JSON na request"}, 404
 
 # Rota /api/candango/user/deactivate - Métodos GET

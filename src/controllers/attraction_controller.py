@@ -6,10 +6,12 @@ from models.level import Level
 from controllers import medalha_controller, level_controller, attraction_controller
 from settings import logger
 from utils import bytesToImg
-from flask import send_file
+from flask import send_file, send_from_directory
 from flask_login import current_user
 from sqlalchemy  import func
+import os
 import datetime
+from PIL import Image
 
 def getAllAttractions():
     pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
@@ -30,7 +32,6 @@ def getUserVistedAttraction(attractionId):
     return userVisitedAttraction
 
 def getAllUserVisitedAttractions():
-    usuario = current_user
     userVisitedAttractions = db.session.query(UsuarioPontoTuristico).join(PontoTuristico).filter(
         UsuarioPontoTuristico.cod_usuario == current_user.id_usuario
     ).all()
@@ -47,32 +48,38 @@ def setUserVisitedAttraction(json):
         PontoTuristico.id_ponto_turistico == attractionCode
     ).first()
 
-    level_controller.addExp(current_user, attraction.qtd_experiencia)
-
     userVisitedAttraction = db.session.query(UsuarioPontoTuristico).filter(
         UsuarioPontoTuristico.cod_ponto_turistico == attraction.id_ponto_turistico,
         UsuarioPontoTuristico.cod_usuario == current_user.id_usuario
     ).first()
+    attractions, _ = getAllAttractions()
     userVisitedAttractions, _ = attraction_controller.getAllUserVisitedAttractions()
     if(not userVisitedAttraction):
-        usuarioPontoTuristico = UsuarioPontoTuristico(
+        userVisitedAttraction = UsuarioPontoTuristico(
             cod_usuario = current_user.id_usuario,
             cod_ponto_turistico=attraction.id_ponto_turistico,
             qtd_visitas = 1
         )
-        db.session.add(usuarioPontoTuristico)
+        db.session.add(userVisitedAttraction)
         db.session.add(current_user)
         db.session.commit()
         result, status = medalha_controller.setUserMedal(json)
         statusMedalha = f"Usuário já possui a medalha para o Ponto Turístico {attraction.nme_ponto_turistico}"
+        expAmmount = attraction.qtd_experiencia
         if('success' in result):
             statusMedalha = result['success']
+            expAmmount += 10
+        
+        userVisitedAttractions, _ = attraction_controller.getAllUserVisitedAttractions()
+        level_controller.addExp(current_user, expAmmount)
         return {
             "msg": "ponto turistico visitado!",
             "medalStatus" : statusMedalha,
             "exp" : current_user.qtd_exp_atual,
+            "expReceived" : expAmmount, 
             "currentLevel" : level_controller.getLevelById(current_user.cod_level),
-            "userVisitedAttraction" : userVisitedAttractions['attractions']
+            "userVisitedAttraction" : userVisitedAttractions['attractions'],
+            "attractions" : attractions['attractions']
         }, status
     else:
         
@@ -82,21 +89,28 @@ def setUserVisitedAttraction(json):
         logger.info("Última visita há: " + str(difference.days) + " dias")
 
         if(difference.days >= 1):
+            
             userVisitedAttraction.dta_usuario_ponto_turistico = func.current_timestamp()
+            last_visit = userVisitedAttraction.dta_usuario_ponto_turistico
             userVisitedAttraction.qtd_visitas += 1
             db.session.add(userVisitedAttraction)
             db.session.commit() 
+            expAmmount = attraction.qtd_experiencia
+            level_controller.addExp(current_user, attraction.qtd_experiencia)
             msg = "ponto turistico visitado novamente!"
         else:
+            expAmmount = 0
             msg = "Usuário já visitou esse ponto turístico nas últimas 24 horas!"
 
-
+        userVisitedAttractions, _ = attraction_controller.getAllUserVisitedAttractions()
         return {
                 "msg": msg,
                 "medalStatus" : "Você já liberou essa medalha!",
                 "exp" : current_user.qtd_exp_atual,
+                "expReceived" : expAmmount, 
                 "currentLevel" : level_controller.getLevelById(current_user.cod_level),
-                "userVisitedAttraction" : userVisitedAttractions['attractions']
+                "userVisitedAttraction" : userVisitedAttractions['attractions'],
+                "attractions" : attractions['attractions']
             }, 201
 
 def setImagemAttraction(file, attractionId):
@@ -112,10 +126,12 @@ def setImagemAttraction(file, attractionId):
 def getImagemAttraction(attractionId):
     logger.info(attractionId)
     attraction = getAttractionById(attractionId)
-    if not attraction.bytea_fto_ponto_turistico:
-        logger.info(f'imagem inexistente para o ponto turistico de id {attractionId}')
-        return {'msg' : f'imagem inexistente para o ponto turistico de id {attractionId}'}, 404
-    bytes = attraction.bytea_fto_ponto_turistico
-    img_io = bytesToImg.bytesToPNG(bytes=bytes)
-    
-    return send_file(img_io, mimetype='image/png'), 200
+    try:
+        foo = Image.open('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\attractions\\' + str(attraction.id_ponto_turistico) + '.jpg')
+        foo.save('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\attractions\\' + str(attraction.id_ponto_turistico) + '.jpg', optimize=True,quality=85)
+        return send_from_directory(
+            os.path.join('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\', 'src\\utils\\imagens\\attractions'),
+            str(attraction.id_ponto_turistico) + '.jpg'
+        )
+    except (FileNotFoundError, AttributeError):
+        return {'error' : 'Imagem não encontrada'}

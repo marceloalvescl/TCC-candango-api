@@ -4,7 +4,9 @@ from models.usuario_medalha import UsuarioMedalha
 from controllers import level_controller
 from settings import logger
 from flask_login import current_user
-from flask import send_file
+from flask import send_from_directory
+import os
+from PIL import Image
 
 def getMedalhas():
     medalhas = Medalha.query.all()
@@ -13,6 +15,10 @@ def getMedalhas():
         dict_medalhas['Id da medalha: ' + str(medalha.id_medalha)] = medalha.toDict()
     
     return dict_medalhas, 200
+
+def getMedalhaById(medalhaId):
+    medalha = db.session.query(Medalha).filter(Medalha.id_medalha == medalhaId).first()
+    return medalha
 
 def getUserMedal():
     usuario = current_user
@@ -67,12 +73,15 @@ def setUserMedal(json):
         "success" : f"Parabéns, {current_user.nme_usuario}, você liberou a {medal.nme_medalha}"
     }, 201
 
-def getMedalhaImagem(image):
+def getMedalhaImagem(medalhaId):
+    logger.info(medalhaId)
+    medalha = getMedalhaById(medalhaId)
     try:
-        logger.info(image)
-        return send_file(f'D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\{image}.jpg', mimetype='image/jpg'), 200
-    except Exception as e:
-        logger.fatal(e)
-        content = {"error" : "imagem inexistente!"}
-        status = 404
-        return content, status
+        foo = Image.open('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\medals\\' + str(medalha.id_medalha) + '.jpg')
+        foo.save('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\medals\\' + str(medalha.id_medalha) + '.jpg', optimize=True,quality=85)
+        return send_from_directory(
+            os.path.join('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\', 'src\\utils\\imagens\\medals'),
+            str(medalha.id_medalha) + '.jpg'
+        )
+    except (FileNotFoundError, AttributeError):
+        return {'error' : 'Imagem não encontrada'}
