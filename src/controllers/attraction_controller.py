@@ -4,14 +4,14 @@ from models.usuario_ponto_turistico import UsuarioPontoTuristico
 from models.local import Local
 from models.level import Level
 from controllers import medalha_controller, level_controller, attraction_controller
-from settings import logger
-from utils import bytesToImg
-from flask import send_file, send_from_directory
+from settings.settings import logger
+from flask import send_file
 from flask_login import current_user
 from sqlalchemy  import func
 import os
 import datetime
 from PIL import Image
+import io
 
 def getAllAttractions():
     pontosTuristicos = db.session.query(PontoTuristico).join(Local).all()
@@ -127,11 +127,12 @@ def getImagemAttraction(attractionId):
     logger.info(attractionId)
     attraction = getAttractionById(attractionId)
     try:
-        foo = Image.open('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\attractions\\' + str(attraction.id_ponto_turistico) + '.jpg')
-        foo.save('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\attractions\\' + str(attraction.id_ponto_turistico) + '.jpg', optimize=True,quality=85)
-        return send_from_directory(
-            os.path.join('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\', 'src\\utils\\imagens\\attractions'),
-            str(attraction.id_ponto_turistico) + '.jpg'
-        )
+        pil_img = Image.open(io.BytesIO(attraction.bytea_fto_ponto_turistico))
+        img_io = io.BytesIO()
+        pil_img.save(img_io, 'JPEG', quality=70)
+        img_io.seek(0)
+        
+        return send_file(img_io, mimetype='image/jpeg', download_name=attraction.nme_ponto_turistico, as_attachment=True, attachment_filename= attraction.nme_ponto_turistico + '.jpg')
     except (FileNotFoundError, AttributeError):
         return {'error' : 'Imagem não encontrada'}
+

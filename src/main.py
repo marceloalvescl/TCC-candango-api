@@ -1,4 +1,4 @@
-from settings import logger, server_configuration
+from settings.settings import logger, server_configuration
 from app import app
 
 if __name__ == '__main__':

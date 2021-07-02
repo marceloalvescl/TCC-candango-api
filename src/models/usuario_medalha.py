@@ -2,7 +2,7 @@ from app import db
 from models.medalha import Medalha
 from sqlalchemy  import func
 import datetime
-from settings import logger
+from settings.settings import logger
 
 
 

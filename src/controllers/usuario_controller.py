@@ -3,7 +3,7 @@ from app import db
 from models.usuario import Usuario
 from controllers import attraction_controller, usuario_controller
 from utils.builders import build_response_usuario, build_response_login, build_response, email_message_template
-from settings import logger
+from settings.settings import logger
 
 from flask import send_file
 from flask_login import login_user, current_user, logout_user

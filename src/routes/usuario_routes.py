@@ -1,6 +1,6 @@
 from routes import candango_routes
 from controllers import usuario_controller  
-from settings import logger
+from settings.settings import logger
 
 from flask import request
 from flask_login import login_required

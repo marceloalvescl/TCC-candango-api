@@ -1,8 +1,6 @@
 from app import db
 from models.ponto_turistico import PontoTuristico
 from sqlalchemy  import func
-import datetime
-from settings import logger
 
 
 

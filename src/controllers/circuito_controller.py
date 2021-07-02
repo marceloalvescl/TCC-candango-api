@@ -2,7 +2,7 @@ from app import db
 from models.circuito import Circuito
 from models.circuito_ponto_turistico import CircuitoPontoTuristico
 from models.usuario_circuito import UsuarioCircuito
-from settings import logger
+from settings.settings import logger
 from flask_login import current_user
 from controllers.attraction_controller import getUserVistedAttraction
 

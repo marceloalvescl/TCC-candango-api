@@ -13,4 +13,3 @@ DB_SCHEMA = ''
 DEVELOPMENT_SERVER = 'http://localhost'
 
 REGEX_PARENTHESES = '\\' + '((.*?)' + '\\)'
-

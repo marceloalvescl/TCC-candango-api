@@ -2,7 +2,7 @@ from app import db
 from models.circuito import Circuito
 from sqlalchemy  import func
 import datetime
-from settings import logger
+from settings.settings import logger
 
 
 

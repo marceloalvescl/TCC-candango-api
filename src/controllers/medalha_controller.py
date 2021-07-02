@@ -2,11 +2,12 @@ from app import db
 from models.medalha import Medalha
 from models.usuario_medalha import UsuarioMedalha
 from controllers import level_controller
-from settings import logger
+from settings.settings import logger
 from flask_login import current_user
-from flask import send_from_directory
+from flask import send_file
 import os
 from PIL import Image
+import io
 
 def getMedalhas():
     medalhas = Medalha.query.all()
@@ -77,11 +78,11 @@ def getMedalhaImagem(medalhaId):
     logger.info(medalhaId)
     medalha = getMedalhaById(medalhaId)
     try:
-        foo = Image.open('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\medals\\' + str(medalha.id_medalha) + '.jpg')
-        foo.save('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\src\\utils\\imagens\\medals\\' + str(medalha.id_medalha) + '.jpg', optimize=True,quality=85)
-        return send_from_directory(
-            os.path.join('D:\\ambientes-candango\\producao-candango\\TCC-candango-api\\', 'src\\utils\\imagens\\medals'),
-            str(medalha.id_medalha) + '.jpg'
-        )
+        pil_img = Image.open(io.BytesIO(medalha.bytea_fto_medalha))
+        img_io = io.BytesIO()
+        pil_img.save(img_io, 'JPEG', quality=70)
+        img_io.seek(0)
+        
+        return send_file(img_io, mimetype='image/jpeg', download_name=medalha.nme_medalha, as_attachment=True, attachment_filename= medalha.nme_medalha + '.jpg')
     except (FileNotFoundError, AttributeError):
         return {'error' : 'Imagem não encontrada'}

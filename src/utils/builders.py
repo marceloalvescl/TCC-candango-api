@@ -1,7 +1,7 @@
 from flask import jsonify
 from models.usuario import Usuario
 from controllers import level_controller, attraction_controller
-from settings import logger
+from settings.settings import logger
 
 def build_response_usuario(msg, resultado):
     if (isinstance(resultado, str)):
